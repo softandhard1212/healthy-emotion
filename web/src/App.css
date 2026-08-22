@@ -1,0 +1,315 @@
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100svh;
+  color: var(--text-muted);
+}
+
+/* --- Auth --- */
+
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 1rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.auth-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.auth-card input {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.auth-card button[type="submit"] {
+  margin-top: 0.4rem;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 600;
+}
+
+.auth-card button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  padding: 0;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+/* --- Shell --- */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.top-nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.top-nav a.active {
+  color: var(--accent);
+}
+
+.top-nav .sign-out {
+  margin-left: auto;
+}
+
+.app-main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+/* --- Chat --- */
+
+.chat-page {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem;
+}
+
+.chat-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.5rem 0.25rem;
+}
+
+.chat-empty {
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.bubble-user {
+  align-self: flex-end;
+  background: var(--bubble-user);
+  color: var(--bubble-user-text);
+  border-bottom-right-radius: 4px;
+}
+
+.bubble-agent {
+  align-self: flex-start;
+  background: var(--bubble-agent);
+  color: var(--bubble-agent-text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.bubble-pending {
+  opacity: 0.6;
+}
+
+.chat-error {
+  padding: 0.5rem 0.25rem;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.chat-input-row input {
+  flex: 1;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.chat-input-row button {
+  padding: 0.65rem 1.2rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 600;
+}
+
+.chat-input-row button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.new-convo {
+  margin-top: 0.6rem;
+}
+
+/* --- Feeling picker --- */
+
+.feeling-picker {
+  padding-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.feeling-prompt {
+  font-weight: 600;
+  text-align: center;
+}
+
+.feeling-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.chip {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.chip-selected {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* --- Journal --- */
+
+.journal-page {
+  width: 100%;
+  max-width: 640px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.journal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.journal-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.journal-emotion {
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.journal-intensity {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent-bg);
+}
+
+.intensity-low {
+  color: var(--low);
+}
+
+.intensity-mid {
+  color: var(--mid);
+}
+
+.intensity-high {
+  color: var(--high);
+}
+
+.journal-date {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.journal-trigger {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.journal-label {
+  font-weight: 600;
+}
+
+.journal-thought,
+.journal-reframe,
+.journal-reflection {
+  font-size: 0.92rem;
+}

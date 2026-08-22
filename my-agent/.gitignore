@@ -1,0 +1,23 @@
+# Secrets — never commit real API keys.
+.env
+.env.*
+
+# Managed Deep Agent build output.
+.mda/
+
+# Legacy Harbor env scripts and run output stay local; other compiled evals/ are checked in.
+evals/harbor-env.sh
+evals/harbor-jobs/
+
+# Dependencies.
+node_modules/
+__pycache__/
+.venv/
+uv-cache/
+
+# OS / editor junk.
+.DS_Store
+Thumbs.db
+desktop.ini
+test_journal.sh
+.test_journal_thread_id
