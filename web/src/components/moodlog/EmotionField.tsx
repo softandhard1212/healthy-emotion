@@ -11,7 +11,7 @@ import {
 } from "../../lib/emotions";
 
 interface Props {
-  /** Where step 1 landed — the field opens scrolled to this band. */
+  /** Where step 1 landed — the canvas opens centred on this corner. */
   activeQuadrant: QuadrantId;
   selected: string[];
   /** The most recent pick, whose definition is showing. */
@@ -22,16 +22,26 @@ interface Props {
 }
 
 /**
- * Step 2 — every word on one continuous field.
+ * The canvas is wider and taller than a phone on purpose: the four corners sit
+ * where they sit on the circumplex, so panning to another quadrant is a move
+ * in the direction that quadrant actually lies. 8 columns of bubbles across,
+ * which leaves roughly five in view — enough that the neighbouring corner is
+ * always visibly there to be reached for.
+ */
+const CANVAS_PX = 548;
+
+/**
+ * Step 2 — the whole vocabulary as one 2×2 field.
+ *
+ * Laid out as the circumplex itself: unpleasant on the left, pleasant on the
+ * right, high energy up, low energy down. Within each corner the bubbles are
+ * shaded by how far from neutral the word sits, so "irritated" and "angry"
+ * read as the same family at different strengths rather than two equal chips.
  *
  * Not filtered to the quadrant from step 1: that was a guess, and "exhausted
- * but also relieved" spans two. So the whole vocabulary stays on one surface,
- * shaded by where each word sits on the circumplex, and the view simply
- * *opens* on the predicted band with its neighbours visible — a starting
- * point to correct by scrolling, not a filter to clear.
- *
- * Each pick surfaces what the word means. Telling "discouraged" from
- * "frustrated" is most of what makes a check-in worth anything later.
+ * but also relieved" spans two corners. The view merely *opens* centred on the
+ * guess with its neighbours in frame — a starting point to correct by panning,
+ * not a filter to clear.
  */
 export default function EmotionField({
   activeQuadrant,
@@ -41,13 +51,17 @@ export default function EmotionField({
   onBack,
   onContinue,
 }: Props) {
-  const bandRefs = useRef<Partial<Record<QuadrantId, HTMLDivElement | null>>>({});
+  const cornerRefs = useRef<Partial<Record<QuadrantId, HTMLDivElement | null>>>({});
 
   useEffect(() => {
-    const target = bandRefs.current[activeQuadrant];
+    const target = cornerRefs.current[activeQuadrant];
     if (!target) return;
     const id = requestAnimationFrame(() => {
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
     });
     return () => cancelAnimationFrame(id);
   }, [activeQuadrant]);
@@ -61,54 +75,60 @@ export default function EmotionField({
           Which words fit?
         </h1>
         <p className="text-[13.5px] leading-relaxed text-stone-500">
-          Tap any that are true — scroll for the rest.
+          Tap any that are true — drag around for the rest.
         </p>
       </header>
 
-      <div className="-mx-5 min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-1">
-        <div className="flex flex-col gap-4">
-          {QUADRANT_ORDER.map((id) => (
-            <div
-              key={id}
-              ref={(el) => {
-                bandRefs.current[id] = el;
-              }}
-              className="flex scroll-m-4 flex-col gap-2"
-            >
-              <span
-                className="text-[10px] font-bold uppercase tracking-widest opacity-55"
-                style={{ color: QUADRANTS[id].ink }}
+      <div className="-mx-5 min-h-0 flex-1 overflow-auto overscroll-contain px-5 py-2">
+        <div
+          className="grid grid-cols-2 gap-x-4 gap-y-5"
+          style={{ width: CANVAS_PX }}
+        >
+          {QUADRANT_ORDER.map((id) => {
+            const q = QUADRANTS[id];
+            return (
+              <div
+                key={id}
+                ref={(el) => {
+                  cornerRefs.current[id] = el;
+                }}
+                className="flex scroll-m-6 flex-col gap-1.5"
               >
-                {QUADRANTS[id].title}
-              </span>
-              <div className="grid grid-cols-4 gap-2">
-                {emotionsIn(id).map((emotion) => {
-                  const on = selected.includes(emotion.word);
-                  const ink = QUADRANTS[quadrantFor(emotion)].ink;
-                  return (
-                    <motion.button
-                      key={emotion.word}
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => onToggle(emotion.word)}
-                      whileTap={{ scale: 0.92 }}
-                      animate={{ scale: on ? 1.04 : 1 }}
-                      transition={{ type: "spring", stiffness: 420, damping: 26 }}
-                      className="flex aspect-square items-center justify-center rounded-full px-1 text-center text-[10.5px] leading-[1.15] hyphens-auto"
-                      style={{
-                        background: bubbleFill(emotion),
-                        color: ink,
-                        fontWeight: on ? 800 : 500,
-                        boxShadow: on ? `inset 0 0 0 2.5px ${ink}` : "none",
-                      }}
-                    >
-                      {emotion.word}
-                    </motion.button>
-                  );
-                })}
+                <span
+                  className="px-0.5 text-[9.5px] font-bold uppercase leading-tight tracking-widest opacity-55"
+                  style={{ color: q.ink }}
+                >
+                  {q.title}
+                </span>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {emotionsIn(id).map((emotion) => {
+                    const on = selected.includes(emotion.word);
+                    const ink = QUADRANTS[quadrantFor(emotion)].ink;
+                    return (
+                      <motion.button
+                        key={emotion.word}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => onToggle(emotion.word)}
+                        whileTap={{ scale: 0.9 }}
+                        animate={{ scale: on ? 1.06 : 1 }}
+                        transition={{ type: "spring", stiffness: 420, damping: 26 }}
+                        className="flex aspect-square items-center justify-center rounded-full px-0.5 text-center text-[9px] leading-[1.1] tracking-tight"
+                        style={{
+                          background: bubbleFill(emotion),
+                          color: ink,
+                          fontWeight: on ? 800 : 500,
+                          boxShadow: on ? `inset 0 0 0 2px ${ink}` : "none",
+                        }}
+                      >
+                        {emotion.word}
+                      </motion.button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

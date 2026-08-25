@@ -96,6 +96,8 @@ export const EMOTIONS: Emotion[] = [
   { word: "Irritated", x: -4, y: 4, definition: "Worn thin by something small and repeated." },
   { word: "Embarrassed", x: -5, y: 4, definition: "Exposed in a way you didn't choose." },
   { word: "Jealous", x: -6, y: 5, definition: "Afraid of losing something to someone else." },
+  { word: "Nervous", x: -3, y: 5, definition: "Jittery about something specific and close." },
+  { word: "Resentful", x: -6, y: 3, definition: "Anger that went quiet and stayed." },
 
   // High energy, pleasant
   { word: "Joyful", x: 8, y: 7, definition: "Lit up by something good, with nothing held back." },
@@ -108,6 +110,8 @@ export const EMOTIONS: Emotion[] = [
   { word: "Confident", x: 6, y: 5, definition: "Trusting yourself to handle what's coming." },
   { word: "Amused", x: 6, y: 4, definition: "Something struck you as funny." },
   { word: "Affectionate", x: 7, y: 3, definition: "Warm towards someone, and close to them." },
+  { word: "Determined", x: 5, y: 7, definition: "Set on doing it, whatever it takes." },
+  { word: "Enthusiastic", x: 7, y: 7, definition: "All in on something, and showing it." },
 
   // Low energy, unpleasant
   { word: "Sad", x: -6, y: -5, definition: "Something is lost or missing, and it matters." },
@@ -120,6 +124,8 @@ export const EMOTIONS: Emotion[] = [
   { word: "Hopeless", x: -8, y: -6, definition: "Unable to picture it getting better." },
   { word: "Withdrawn", x: -4, y: -6, definition: "Pulled back from people, on purpose or not." },
   { word: "Disappointed", x: -5, y: -3, definition: "It fell short of what you'd let yourself expect." },
+  { word: "Insecure", x: -5, y: -2, definition: "Unsure you measure up to what's being asked." },
+  { word: "Apathetic", x: -3, y: -6, definition: "Nothing in reach seems worth caring about." },
 
   // Low energy, pleasant
   { word: "Calm", x: 5, y: -5, definition: "Nothing is pulling at you." },
@@ -132,6 +138,8 @@ export const EMOTIONS: Emotion[] = [
   { word: "Tender", x: 5, y: -3, definition: "Soft towards someone, a little open." },
   { word: "Satisfied", x: 6, y: -2, definition: "Something is finished, and finished well." },
   { word: "Reflective", x: 4, y: -4, definition: "Turning something over, without hurry." },
+  { word: "Trusting", x: 5, y: -2, definition: "Willing to let someone else carry part of it." },
+  { word: "Loved", x: 7, y: -2, definition: "Held in mind by someone, and knowing it." },
 ];
 
 export interface MoodPoint {
