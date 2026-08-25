@@ -1,6 +1,7 @@
 import {
   Activity as ActivityIcon,
   Bed,
+  Clock,
   BookOpen,
   Heart,
   Home,
@@ -13,6 +14,7 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import {
   ACTIVITIES,
   QUADRANTS,
@@ -46,6 +48,12 @@ interface Props {
  * just a point and some words, and a required note is exactly the friction
  * that stops someone logging on the day they most need to.
  */
+function listWords(words: string[]): string {
+  if (words.length <= 1) return words[0] ?? "";
+  if (words.length === 2) return `${words[0]} and ${words[1]}`;
+  return `${words.slice(0, -1).join(", ")} and ${words[words.length - 1]}`;
+}
+
 export default function ContextStep({
   point,
   quadrant,
@@ -59,46 +67,38 @@ export default function ContextStep({
   saving,
 }: Props) {
   const q = QUADRANTS[quadrant];
+  const loggedAt = new Date().toLocaleString(undefined, {
+    weekday: "long",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <header className="flex flex-col gap-1.5">
-        <h1 className="text-[26px] leading-tight font-medium tracking-tight text-stone-800">
-          What's it attached to?
-        </h1>
-        <p className="text-[13.5px] leading-relaxed text-stone-500">
-          Skip either part if nothing fits.
-        </p>
+      <header className="flex flex-col items-center gap-1 pb-1 text-center">
+        <span className="text-[13px] text-stone-500">I&rsquo;m feeling</span>
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.32, ease: "easeOut" }}
+          className="text-[30px] leading-[1.15] font-medium tracking-tight"
+          style={{ color: q.ink }}
+        >
+          {listWords(emotions.map((e) => e.toLowerCase()))}
+        </motion.h1>
+        <span className="flex items-center gap-1.5 text-[12px] text-stone-400">
+          <Clock size={12} strokeWidth={1.8} />
+          {loggedAt}
+        </span>
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto overscroll-contain">
         <div className="flex flex-col gap-5">
           <div
-            className="flex flex-col gap-2.5 rounded-2xl border p-4"
-            style={{ background: q.tint, borderColor: q.border }}
+            className="flex items-center justify-center rounded-2xl border px-4 py-2.5 text-center"
+            style={{ background: q.tint + "33", borderColor: q.border }}
           >
-            <span
-              className="text-[10.5px] font-bold uppercase tracking-widest opacity-75"
-              style={{ color: q.ink }}
-            >
-              You said
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {emotions.map((emotion) => (
-                <span
-                  key={emotion}
-                  className="rounded-full border px-3 py-1 text-[12.5px] font-semibold"
-                  style={{
-                    background: q.tintActive,
-                    borderColor: q.ink,
-                    color: q.ink,
-                  }}
-                >
-                  {emotion}
-                </span>
-              ))}
-            </div>
-            <span className="text-[12px] opacity-70" style={{ color: q.ink }}>
+            <span className="text-[12.5px]" style={{ color: q.ink }}>
               {describePoint(point)}
             </span>
           </div>

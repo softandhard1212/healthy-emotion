@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import CircumplexGrid from "./CircumplexGrid";
-import EmotionMatrix from "./EmotionMatrix";
+import QuadrantPicker from "./QuadrantPicker";
+import EmotionField from "./EmotionField";
 import ContextStep from "./ContextStep";
 import {
+  centroidOf,
   quadrantFor,
   type MoodLogDraft,
-  type MoodPoint,
   type QuadrantId,
 } from "../../lib/emotions";
 
@@ -26,16 +26,16 @@ const slide = {
 };
 
 /**
- * The three-step check-in: a point on the circumplex, the words that fit, then
- * what it's attached to. Each step answers something easier than "how do you
- * feel", and each one narrows what the next has to ask.
+ * The three-step check-in: which quarter of the circumplex, then the words
+ * that fit, then what it's attached to. Each step asks something easier than
+ * "how do you feel", and each narrows what the next has to ask.
  */
 export default function MoodLogFlow({ onComplete, saving = false }: Props) {
   const [step, setStep] = useState<StepIndex>(0);
   const [back, setBack] = useState(false);
-  const [point, setPoint] = useState<MoodPoint | null>(null);
-  const [quadrant, setQuadrant] = useState<QuadrantId | null>(null);
+  const [guess, setGuess] = useState<QuadrantId | null>(null);
   const [emotions, setEmotions] = useState<string[]>([]);
+  const [lastPicked, setLastPicked] = useState<string | null>(null);
   const [activities, setActivities] = useState<string[]>([]);
   const [note, setNote] = useState("");
 
@@ -44,14 +44,18 @@ export default function MoodLogFlow({ onComplete, saving = false }: Props) {
     setStep(next);
   }
 
-  function handlePick(picked: MoodPoint) {
-    setPoint(picked);
-    setQuadrant(quadrantFor(picked));
-    go(1);
+  function toggleEmotion(word: string) {
+    setEmotions((prev) =>
+      prev.includes(word) ? prev.filter((w) => w !== word) : [...prev, word],
+    );
+    // Deselecting shouldn't leave that word's definition on screen.
+    setLastPicked((prev) => (prev === word && emotions.includes(word) ? null : word));
   }
 
-  const toggle = (list: string[], value: string) =>
-    list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
+  // The point comes from the words, not the opening tap: the words sit at known
+  // places on the circumplex, so two of them average to an honest middle.
+  const point = centroidOf(emotions);
+  const quadrant = emotions.length ? quadrantFor(point) : guess;
 
   return (
     <div className="mx-auto flex h-full w-full max-w-md flex-col px-5 pb-4 pt-2">
@@ -69,19 +73,27 @@ export default function MoodLogFlow({ onComplete, saving = false }: Props) {
             transition={{ duration: 0.26, ease: [0.4, 0, 0.2, 1] }}
             className="flex min-h-0 flex-1 flex-col"
           >
-            {step === 0 && <CircumplexGrid onPick={handlePick} />}
+            {step === 0 && (
+              <QuadrantPicker
+                onPick={(q) => {
+                  setGuess(q);
+                  go(1);
+                }}
+              />
+            )}
 
-            {step === 1 && quadrant && (
-              <EmotionMatrix
-                activeQuadrant={quadrant}
+            {step === 1 && guess && (
+              <EmotionField
+                activeQuadrant={guess}
                 selected={emotions}
-                onToggle={(e) => setEmotions((prev) => toggle(prev, e))}
+                lastPicked={lastPicked}
+                onToggle={toggleEmotion}
                 onBack={() => go(0)}
                 onContinue={() => go(2)}
               />
             )}
 
-            {step === 2 && point && quadrant && (
+            {step === 2 && quadrant && (
               <ContextStep
                 point={point}
                 quadrant={quadrant}
@@ -89,7 +101,9 @@ export default function MoodLogFlow({ onComplete, saving = false }: Props) {
                 activities={activities}
                 note={note}
                 onToggleActivity={(id) =>
-                  setActivities((prev) => toggle(prev, id))
+                  setActivities((prev) =>
+                    prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id],
+                  )
                 }
                 onNoteChange={setNote}
                 onBack={() => go(1)}
