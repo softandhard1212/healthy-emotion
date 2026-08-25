@@ -1,123 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   fetchJournalEntries,
   setAffirmationSaved,
-  summarizeJournal,
   type JournalEntry,
-  type PatternStat,
 } from "../lib/journal";
+import { formatDate, intensityTone } from "../lib/format";
 import { patternDetail, patternLabel } from "../lib/patterns";
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function intensityTone(intensity: number): string {
-  if (intensity <= 3) return "intensity-low";
-  if (intensity <= 6) return "intensity-mid";
-  return "intensity-high";
-}
-
-function timesLabel(count: number): string {
-  return count === 1 ? "once" : `${count} times`;
-}
-
-/** The one pattern worth putting at the top: the mind's most practised move. */
-function PatternSpotlight({ stat }: { stat: PatternStat }) {
-  const detail = patternDetail(stat.slug);
-  return (
-    <section className="spotlight">
-      <p className="spotlight-eyebrow">Comes up most often</p>
-      <h2 className="spotlight-title">{patternLabel(stat.slug)}</h2>
-      {detail && <p className="spotlight-description">{detail.description}</p>}
-      <p className="spotlight-count">
-        Showed up {timesLabel(stat.count)} in your check-ins.
-      </p>
-      {stat.thoughts.length > 0 && (
-        <ul className="spotlight-thoughts">
-          {stat.thoughts.slice(0, 3).map((thought, i) => (
-            <li key={i}>“{thought}”</li>
-          ))}
-        </ul>
-      )}
-      {detail && (
-        <p className="spotlight-question">
-          Next time it turns up: <em>{detail.question}</em>
-        </p>
-      )}
-    </section>
-  );
-}
-
-function StatTiles({
-  entryCount,
-  thoughtCount,
-  reframedCount,
-  averageIntensity,
-  intensityShift,
-}: {
-  entryCount: number;
-  thoughtCount: number;
-  reframedCount: number;
-  averageIntensity: number | null;
-  intensityShift: number | null;
-}) {
-  return (
-    <section className="stat-tiles">
-      <div className="stat-tile">
-        <span className="stat-value">{entryCount}</span>
-        <span className="stat-label">check-ins</span>
-      </div>
-      <div className="stat-tile">
-        <span className="stat-value">{thoughtCount}</span>
-        <span className="stat-label">thoughts caught</span>
-      </div>
-      <div className="stat-tile">
-        <span className="stat-value">{reframedCount}</span>
-        <span className="stat-label">reframed</span>
-      </div>
-      {averageIntensity !== null && (
-        <div className="stat-tile">
-          <span className="stat-value">{averageIntensity.toFixed(1)}</span>
-          <span className="stat-label">
-            average intensity
-            {intensityShift !== null && Math.abs(intensityShift) >= 0.5 && (
-              <span
-                className={
-                  intensityShift < 0 ? "stat-trend easing" : "stat-trend rising"
-                }
-              >
-                {intensityShift < 0 ? "↓" : "↑"}{" "}
-                {Math.abs(intensityShift).toFixed(1)} lately
-              </span>
-            )}
-          </span>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function KeptAffirmations({ entries }: { entries: JournalEntry[] }) {
-  return (
-    <section className="kept">
-      <h2 className="section-title">Lines you kept</h2>
-      <div className="kept-row">
-        {entries.map((entry) => (
-          <blockquote key={entry.id} className="kept-card">
-            {entry.affirmation}
-            <cite>{formatDate(entry.created_at)}</cite>
-          </blockquote>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 function EntryCard({
   entry,
@@ -194,7 +83,10 @@ function EntryCard({
 export default function Journal() {
   const [entries, setEntries] = useState<JournalEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [activePattern, setActivePattern] = useState<string | null>(null);
+  // The pattern filter lives in the URL so Trends can deep-link into a
+  // filtered view ("/journal?pattern=catastrophizing").
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activePattern = searchParams.get("pattern");
 
   useEffect(() => {
     fetchJournalEntries()
@@ -202,10 +94,9 @@ export default function Journal() {
       .catch((err) => setError(err instanceof Error ? err.message : String(err)));
   }, []);
 
-  const summary = useMemo(
-    () => summarizeJournal(entries ?? []),
-    [entries],
-  );
+  function setActivePattern(slug: string | null) {
+    setSearchParams(slug ? { pattern: slug } : {}, { replace: true });
+  }
 
   async function handleToggleKeep(entry: JournalEntry) {
     const next = !entry.affirmation_saved;
@@ -259,8 +150,6 @@ export default function Journal() {
     );
   }
 
-  const kept = entries.filter((e) => e.affirmation_saved && e.affirmation);
-  const topPattern = summary.patterns[0];
   const visible = activePattern
     ? entries.filter((e) => (e.thinking_patterns ?? []).includes(activePattern))
     : entries;
@@ -277,67 +166,20 @@ export default function Journal() {
 
       {error && <p className="error">{error}</p>}
 
-      <StatTiles
-        entryCount={summary.entryCount}
-        thoughtCount={summary.thoughtCount}
-        reframedCount={summary.reframedCount}
-        averageIntensity={summary.averageIntensity}
-        intensityShift={summary.intensityShift}
-      />
-
-      {topPattern && topPattern.count > 1 && (
-        <PatternSpotlight stat={topPattern} />
-      )}
-
-      {summary.patterns.length > 0 && (
-        <section className="pattern-strip">
-          <h2 className="section-title">Patterns in your thinking</h2>
-          <div className="pattern-chips">
-            {summary.patterns.map((stat) => (
-              <button
-                key={stat.slug}
-                type="button"
-                className={
-                  activePattern === stat.slug
-                    ? "pattern-chip pattern-chip-active"
-                    : "pattern-chip"
-                }
-                aria-pressed={activePattern === stat.slug}
-                title={patternDetail(stat.slug)?.description}
-                onClick={() =>
-                  setActivePattern(
-                    activePattern === stat.slug ? null : stat.slug,
-                  )
-                }
-              >
-                {patternLabel(stat.slug)}
-                <span className="pattern-chip-count">{stat.count}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {kept.length > 0 && <KeptAffirmations entries={kept} />}
-
       <section className="journal-timeline">
-        <h2 className="section-title">
-          {activePattern ? (
-            <>
-              {visible.length} check-in{visible.length === 1 ? "" : "s"} with{" "}
-              {patternLabel(activePattern).toLowerCase()}
-              <button
-                type="button"
-                className="link clear-filter"
-                onClick={() => setActivePattern(null)}
-              >
-                Show all
-              </button>
-            </>
-          ) : (
-            "Every check-in"
-          )}
-        </h2>
+        {activePattern && (
+          <h2 className="section-title">
+            {visible.length} check-in{visible.length === 1 ? "" : "s"} with{" "}
+            {patternLabel(activePattern).toLowerCase()}
+            <button
+              type="button"
+              className="link clear-filter"
+              onClick={() => setActivePattern(null)}
+            >
+              Show all
+            </button>
+          </h2>
+        )}
         {visible.map((entry) => (
           <EntryCard
             key={entry.id}

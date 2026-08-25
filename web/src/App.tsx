@@ -4,6 +4,7 @@ import { supabase } from "./lib/supabase";
 import Login from "./pages/Login";
 import Chat from "./pages/Chat";
 import Journal from "./pages/Journal";
+import Trends from "./pages/Trends";
 import "./App.css";
 
 function AppShell() {
@@ -26,6 +27,9 @@ function AppShell() {
         <NavLink to="/journal" className={({ isActive }) => (isActive ? "active" : "")}>
           Journal
         </NavLink>
+        <NavLink to="/trends" className={({ isActive }) => (isActive ? "active" : "")}>
+          Trends
+        </NavLink>
         <button
           type="button"
           className="link sign-out"
@@ -38,6 +42,7 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<Chat />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/trends" element={<Trends />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
