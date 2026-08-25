@@ -22,13 +22,17 @@ interface Props {
 }
 
 /**
- * The canvas is wider and taller than a phone on purpose: the four corners sit
- * where they sit on the circumplex, so panning to another quadrant is a move
- * in the direction that quadrant actually lies. 8 columns of bubbles across,
- * which leaves roughly five in view — enough that the neighbouring corner is
- * always visibly there to be reached for.
+ * Each corner is sized to about fill the viewport, so the canvas runs roughly
+ * two screens wide and two deep and you travel between quadrants by dragging
+ * in the direction that quadrant lies.
+ *
+ * The width is deliberately a little under the viewport: it leaves a band of
+ * the next corner's colour showing at the edge, which is the only thing
+ * telling someone the other three exist. Full-width would fill the screen more
+ * handsomely and strand them in one quadrant.
  */
-const CANVAS_PX = 548;
+const QUADRANT_PX = 308;
+const CANVAS_GAP = 20;
 
 /**
  * Step 2 — the whole vocabulary as one 2×2 field.
@@ -79,10 +83,13 @@ export default function EmotionField({
         </p>
       </header>
 
-      <div className="-mx-5 min-h-0 flex-1 overflow-auto overscroll-contain px-5 py-2">
+      <div
+        className="-mx-5 min-h-0 flex-1 overflow-auto overscroll-contain px-5 py-2"
+        style={{ scrollSnapType: "both proximity" }}
+      >
         <div
-          className="grid grid-cols-2 gap-x-4 gap-y-5"
-          style={{ width: CANVAS_PX }}
+          className="grid grid-cols-2"
+          style={{ width: QUADRANT_PX * 2 + CANVAS_GAP, gap: CANVAS_GAP }}
         >
           {QUADRANT_ORDER.map((id) => {
             const q = QUADRANTS[id];
@@ -92,15 +99,16 @@ export default function EmotionField({
                 ref={(el) => {
                   cornerRefs.current[id] = el;
                 }}
-                className="flex scroll-m-6 flex-col gap-1.5"
+                className="flex flex-col gap-2"
+                style={{ width: QUADRANT_PX, scrollSnapAlign: "center" }}
               >
                 <span
-                  className="px-0.5 text-[9.5px] font-bold uppercase leading-tight tracking-widest opacity-55"
+                  className="px-1 text-[10.5px] font-bold uppercase leading-tight tracking-widest opacity-55"
                   style={{ color: q.ink }}
                 >
                   {q.title}
                 </span>
-                <div className="grid grid-cols-4 gap-1.5">
+                <div className="grid grid-cols-3 gap-2.5">
                   {emotionsIn(id).map((emotion) => {
                     const on = selected.includes(emotion.word);
                     const ink = QUADRANTS[quadrantFor(emotion)].ink;
@@ -113,12 +121,12 @@ export default function EmotionField({
                         whileTap={{ scale: 0.9 }}
                         animate={{ scale: on ? 1.06 : 1 }}
                         transition={{ type: "spring", stiffness: 420, damping: 26 }}
-                        className="flex aspect-square items-center justify-center rounded-full px-0.5 text-center text-[9px] leading-[1.1] tracking-tight"
+                        className="flex aspect-square items-center justify-center rounded-full px-2 text-center text-[12px] leading-[1.15]"
                         style={{
                           background: bubbleFill(emotion),
                           color: ink,
                           fontWeight: on ? 800 : 500,
-                          boxShadow: on ? `inset 0 0 0 2px ${ink}` : "none",
+                          boxShadow: on ? `inset 0 0 0 2.5px ${ink}` : "none",
                         }}
                       >
                         {emotion.word}
