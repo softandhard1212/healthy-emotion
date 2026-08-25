@@ -3,8 +3,11 @@
 A CBT/DBT-grounded emotional support coach, built as a Managed Deep Agent
 with [`managed-deepagents`](https://github.com/langchain-ai/managed-deepagents-sdk).
 It helps with in-the-moment emotional regulation and keeps a private,
-per-user journal — mood and, when one emerges, the automatic thought and
-its reframe — so people (and the agent) can notice patterns over time.
+per-user journal built around the core CBT move: each check-in records the
+automatic thought behind the feeling, which recognized thinking pattern(s)
+it fits (a fixed taxonomy in `tools/patterns.py`), the reframe, and a
+tailored affirmation to come back to — so people (and the agent) can
+notice which thought keeps returning, not just how moods move around.
 
 ## Project structure
 
@@ -16,6 +19,7 @@ my-agent/
   .env                     # API keys (LangSmith, model, Supabase); never commit
   identity.py              # Supabase auth — private threads per signed-in user
   tools/journal.py         # log_emotion_entry / get_emotion_progress
+  tools/patterns.py        # thinking-pattern taxonomy (mirrored in web/src/lib/patterns.ts)
   supabase/schema.sql      # emotion_journal_entries table + RLS policy
   middleware/               # optional middleware
   skills/                   # optional skills synced to Context Hub
