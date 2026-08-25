@@ -6,25 +6,11 @@ import {
   sendMessage,
   type AgentMessage,
 } from "../lib/agent";
+import MoodLogFlow from "../components/moodlog/MoodLogFlow";
+import { draftToMessage, type MoodLogDraft } from "../lib/emotions";
 
 const THREAD_STORAGE_KEY = "healthy-emotion-thread-id";
 
-const FEELINGS = [
-  "Anxious",
-  "Sad",
-  "Angry",
-  "Stressed",
-  "Overwhelmed",
-  "Frustrated",
-  "Lonely",
-  "Numb",
-  "Guilty",
-  "Scared",
-  "Hopeless",
-  "Calm",
-  "Hopeful",
-  "Happy",
-];
 
 function isVisible(m: AgentMessage): boolean {
   if (m.type === "human") return true;
@@ -37,7 +23,6 @@ export default function Chat() {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [input, setInput] = useState("");
-  const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +65,6 @@ export default function Chat() {
       const updated = await sendMessage(accessToken, threadId, text.trim());
       setMessages(updated);
       setInput("");
-      setSelectedFeeling(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -93,7 +77,6 @@ export default function Chat() {
     setThreadId(null);
     setMessages([]);
     setInput("");
-    setSelectedFeeling(null);
     setError(null);
     if (accessToken) {
       createThread(accessToken)
@@ -120,6 +103,7 @@ export default function Chat() {
 
   return (
     <div className="chat-page">
+      {!isFirstTurn && (
       <div className="chat-scroll">
         {visibleMessages.length === 0 && !isFirstTurn && (
           <p className="chat-empty">Starting a new conversation…</p>
@@ -137,51 +121,16 @@ export default function Chat() {
         )}
         <div ref={bottomRef} />
       </div>
+      )}
 
       {error && <p className="error chat-error">{error}</p>}
 
       {isFirstTurn ? (
-        <div className="feeling-picker">
-          <p className="feeling-prompt">How are you feeling right now?</p>
-          <div className="feeling-chips">
-            {FEELINGS.map((feeling) => (
-              <button
-                key={feeling}
-                type="button"
-                className={
-                  selectedFeeling === feeling ? "chip chip-selected" : "chip"
-                }
-                onClick={() => setSelectedFeeling(feeling)}
-                disabled={sending}
-              >
-                {feeling}
-              </button>
-            ))}
-          </div>
-          <form
-            className="chat-input-row"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSend(selectedFeeling ?? input);
-            }}
-          >
-            <input
-              type="text"
-              placeholder="…or type your own"
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                setSelectedFeeling(null);
-              }}
-              disabled={sending}
-            />
-            <button
-              type="submit"
-              disabled={sending || (!selectedFeeling && !input.trim())}
-            >
-              Continue
-            </button>
-          </form>
+        <div className="min-h-0 flex-1">
+          <MoodLogFlow
+            saving={sending}
+            onComplete={(draft: MoodLogDraft) => handleSend(draftToMessage(draft))}
+          />
         </div>
       ) : (
         <form
@@ -204,9 +153,11 @@ export default function Chat() {
         </form>
       )}
 
-      <button type="button" className="link new-convo" onClick={startNewConversation}>
-        Start a new conversation
-      </button>
+      {!isFirstTurn && (
+        <button type="button" className="link new-convo" onClick={startNewConversation}>
+          Start a new conversation
+        </button>
+      )}
     </div>
   );
 }
