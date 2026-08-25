@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Chat from "./pages/Chat";
 import Journal from "./pages/Journal";
 import Trends from "./pages/Trends";
+import Patterns from "./pages/Patterns";
 import "./App.css";
 
 function AppShell() {
@@ -27,6 +28,9 @@ function AppShell() {
         <NavLink to="/journal" className={({ isActive }) => (isActive ? "active" : "")}>
           Journal
         </NavLink>
+        <NavLink to="/patterns" className={({ isActive }) => (isActive ? "active" : "")}>
+          Patterns
+        </NavLink>
         <NavLink to="/trends" className={({ isActive }) => (isActive ? "active" : "")}>
           Trends
         </NavLink>
@@ -42,6 +46,7 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<Chat />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/patterns" element={<Patterns />} />
           <Route path="/trends" element={<Trends />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

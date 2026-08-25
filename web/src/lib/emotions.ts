@@ -23,6 +23,8 @@ export type QuadrantId =
 export interface Quadrant {
   id: QuadrantId;
   title: string;
+  /** Which half of the grid this corner is in. Neither is the good one. */
+  tone: "cool" | "warm";
   /** One line naming the felt state, for people who don't recognise the words. */
   hint: string;
   /** Base pastel for the quadrant's bubbles, and its readable ink. */
@@ -34,6 +36,7 @@ export interface Quadrant {
 export const QUADRANTS: Record<QuadrantId, Quadrant> = {
   highUnpleasant: {
     id: "highUnpleasant",
+    tone: "cool",
     title: "High energy, unpleasant",
     hint: "Keyed up, and it doesn't feel good.",
     tint: "#f2a894",
@@ -42,6 +45,7 @@ export const QUADRANTS: Record<QuadrantId, Quadrant> = {
   },
   highPleasant: {
     id: "highPleasant",
+    tone: "warm",
     title: "High energy, pleasant",
     hint: "Lit up, with energy behind it.",
     tint: "#f4c877",
@@ -50,6 +54,7 @@ export const QUADRANTS: Record<QuadrantId, Quadrant> = {
   },
   lowUnpleasant: {
     id: "lowUnpleasant",
+    tone: "cool",
     title: "Low energy, unpleasant",
     hint: "Heavy, flat, or worn down.",
     tint: "#aeb3e0",
@@ -58,6 +63,7 @@ export const QUADRANTS: Record<QuadrantId, Quadrant> = {
   },
   lowPleasant: {
     id: "lowPleasant",
+    tone: "warm",
     title: "Low energy, pleasant",
     hint: "Settled, and quiet with it.",
     tint: "#9ccfb8",

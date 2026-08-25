@@ -660,3 +660,234 @@
 .journal-reflection {
   font-size: 0.92rem;
 }
+
+/* --- Reading pages: Trends and Patterns ------------------------------- */
+
+.reading-page {
+  width: 100%;
+  max-width: 640px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.6rem 1.35rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.6rem;
+}
+
+.page-head { display: flex; flex-direction: column; gap: 0.55rem; }
+
+.page-head h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.eyebrow {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.lead { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; }
+
+.reading-page section { display: flex; flex-direction: column; gap: 0.85rem; }
+
+/* The first section is the title's own content, so it tucks up under the
+   heading instead of sitting a full section-gap away and looking orphaned. */
+.head-section { margin-top: -1.9rem; }
+
+.observation {
+  border-left: 3px solid var(--border);
+  padding-left: 0.8rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.reading-foot {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+/* --- tone: where a check-in landed, never a verdict --- */
+
+.tone-dot {
+  flex: none;
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+.tone-cool { background: var(--cool-mid); }
+.tone-warm { background: var(--warm-mid); }
+.tone-text-cool .instance-said { color: var(--cool-ink); font-style: italic; }
+.tone-text-warm .instance-said { color: var(--warm-ink); }
+.tone-rail-cool { border-left-color: var(--cool-mid); }
+.tone-rail-warm { border-left-color: var(--warm-mid); }
+.tone-fill-cool { fill: var(--cool-mid); }
+.tone-fill-warm { fill: var(--warm-mid); }
+
+.tone-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+.tone-legend span { display: flex; align-items: center; gap: 0.4rem; }
+
+/* --- the ranked list --- */
+
+.pattern-list { list-style: none; margin: 0; padding: 0; }
+
+.pattern-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.7rem 0.25rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 8px;
+  color: inherit;
+  text-align: left;
+}
+.pattern-list li:last-child .pattern-row { border-bottom: none; }
+.pattern-row:hover { background: var(--surface); }
+.pattern-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.pattern-row-name { font-size: 0.92rem; }
+.pattern-row-n {
+  margin-left: auto;
+  font-size: 0.79rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.pattern-row-chev { color: var(--text-muted); line-height: 1; }
+
+/* --- the worked example --- */
+
+.pattern-example {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem 1.05rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.pattern-example-head { display: flex; align-items: flex-start; gap: 0.65rem; }
+.pattern-example-head .tone-dot { margin-top: 0.42rem; }
+.pattern-example-head > div { display: flex; flex-direction: column; gap: 0.1rem; }
+.pattern-example-head b { font-size: 1.05rem; font-weight: 600; }
+.pattern-example-head span { font-size: 0.79rem; color: var(--text-muted); line-height: 1.5; }
+.pattern-example-n {
+  margin-left: auto;
+  font-size: 0.79rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- occurrences --- */
+
+.instance-list { display: flex; flex-direction: column; }
+.instance {
+  display: grid;
+  grid-template-columns: 3.1rem 1fr;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.instance:last-child { border-bottom: none; }
+.instance-when {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  padding-top: 0.18rem;
+  font-variant-numeric: tabular-nums;
+}
+.instance-body { display: flex; flex-direction: column; gap: 0.22rem; min-width: 0; }
+.instance-said { font-size: 0.96rem; line-height: 1.4; }
+.instance-meta { font-size: 0.73rem; color: var(--text-muted); }
+
+/* --- detail view --- */
+
+.back-link {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  color: var(--accent);
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: 8px;
+  margin-bottom: -1.9rem;
+}
+.back-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.detail-title { display: flex; align-items: center; gap: 0.6rem; }
+.detail-title h1 { margin: 0; font-size: 1.6rem; font-weight: 500; letter-spacing: -0.012em; }
+.detail-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.when-strip {
+  position: relative;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.when-strip i { position: absolute; top: 50%; margin: -4.5px 0 0 -4.5px; }
+.when-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* --- split bars, shared by Trends and the detail view --- */
+
+.split-list { display: flex; flex-direction: column; gap: 0.7rem; }
+.split-row { display: flex; flex-direction: column; gap: 0.3rem; }
+.split-top { display: flex; align-items: baseline; font-size: 0.86rem; }
+.split-n {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.split-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+.split-bar-split { display: flex; gap: 2px; background: none; }
+.split-bar i { display: block; height: 100%; border-radius: 999px; }
+.split-bar i.tone-cool { background: var(--cool-mid); }
+.split-bar i.tone-warm { background: var(--warm-mid); }
+
+/* --- the circumplex scatter --- */
+
+.grid-plot { display: block; width: 100%; height: auto; }
+.q-high-un { fill: var(--tint-high-un); opacity: 0.15; }
+.q-high-pl { fill: var(--warm-mid); opacity: 0.2; }
+.q-low-un { fill: var(--cool-mid); opacity: 0.22; }
+.q-low-pl { fill: var(--tint-low-pl); opacity: 0.15; }
+.grid-axis { stroke: var(--border); stroke-width: 1; }
+.grid-dot { stroke: var(--surface); stroke-width: 1.5; fill-opacity: 0.85; }
+.grid-count { font-size: 19px; font-weight: 700; opacity: 0.5; }
+.grid-count-cool { fill: var(--cool-ink); }
+.grid-count-warm { fill: var(--warm-ink); }
+.grid-label { font-size: 9px; fill: var(--text-muted); letter-spacing: 0.08em; }

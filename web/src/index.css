@@ -19,6 +19,13 @@
     --mid: #b98b2f;
     --high: #b3452f;
 
+    --cool-ink: #3f4288;
+    --cool-mid: #a3a8dd;
+    --warm-ink: #84540f;
+    --warm-mid: #edbb62;
+    --tint-high-un: #f2a894;
+    --tint-low-pl: #9ccfb8;
+
     color-scheme: light dark;
     font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color: var(--text);
@@ -43,6 +50,13 @@
       --low: #6fa89e;
       --mid: #d1a84e;
       --high: #d97b63;
+
+    --cool-ink: #b9bdf0;
+    --cool-mid: #6d72ad;
+    --warm-ink: #f0c887;
+    --warm-mid: #c69a49;
+    --tint-high-un: #b8705d;
+    --tint-low-pl: #6a9c86;
     }
   }
 

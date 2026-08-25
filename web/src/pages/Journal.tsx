@@ -52,12 +52,6 @@ function EntryCard({
         </div>
       )}
 
-      {entry.reframe && (
-        <div className="reframe-block">
-          <p className="block-label">Another way to see it</p>
-          <p className="reframe-text">{entry.reframe}</p>
-        </div>
-      )}
 
       {entry.affirmation && (
         <div className="affirmation-block">
@@ -75,7 +69,6 @@ function EntryCard({
         </div>
       )}
 
-      <p className="journal-reflection">{entry.reflection}</p>
     </article>
   );
 }

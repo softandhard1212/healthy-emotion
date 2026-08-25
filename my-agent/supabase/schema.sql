@@ -37,6 +37,29 @@ alter table emotion_journal_entries
 alter table emotion_journal_entries
   add column if not exists affirmation_saved boolean not null default false;
 
+-- What a check-in recorded when it landed well. `bright_moment` stands on
+-- its own: most conversations never surface the doubt that came before a
+-- good moment, and requiring one would mean recording nothing at all.
+alter table emotion_journal_entries
+  add column if not exists bright_moment text;
+alter table emotion_journal_entries
+  add column if not exists revealed text;
+alter table emotion_journal_entries
+  add column if not exists lift_patterns text[] not null default '{}';
+
+-- What the check-in was about, and where it landed on the circumplex.
+-- The coordinates are the centroid of the words picked in step 2, which is
+-- what lets Trends plot a check-in where the person actually put it.
+alter table emotion_journal_entries
+  add column if not exists activities text[] not null default '{}';
+alter table emotion_journal_entries
+  add column if not exists point_x real;
+alter table emotion_journal_entries
+  add column if not exists point_y real;
+
+create index if not exists emotion_journal_entries_lift_patterns_idx
+  on emotion_journal_entries using gin (lift_patterns);
+
 create index if not exists emotion_journal_entries_user_id_created_at_idx
   on emotion_journal_entries (user_id, created_at);
 

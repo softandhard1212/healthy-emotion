@@ -1,168 +1,48 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   fetchJournalEntries,
-  summarizeJournal,
+  pointOf,
+  splitByActivity,
+  splitByTimeOfDay,
+  summarizeCheckIns,
+  toneOfEntry,
   type JournalEntry,
-  type PatternStat,
+  type Split,
 } from "../lib/journal";
-import { formatDate } from "../lib/format";
-import { patternDetail, patternLabel } from "../lib/patterns";
+import { ACTIVITIES, QUADRANTS, type QuadrantId } from "../lib/emotions";
 
-function timesLabel(count: number): string {
-  return count === 1 ? "once" : `${count} times`;
+const PLOT = { left: 30, top: 15, w: 280, h: 210 };
+
+/** -10..+10 on both axes; screen y is inverted so up is high energy. */
+function place(x: number, y: number) {
+  return {
+    cx: PLOT.left + ((x + 10) / 20) * PLOT.w,
+    cy: PLOT.top + ((10 - y) / 20) * PLOT.h,
+  };
+}
+
+const CORNERS: { id: QuadrantId; x: number; y: number; anchor: "start" | "end" }[] = [
+  { id: "highUnpleasant", x: 40, y: 38, anchor: "start" },
+  { id: "highPleasant", x: 300, y: 38, anchor: "end" },
+  { id: "lowUnpleasant", x: 40, y: 218, anchor: "start" },
+  { id: "lowPleasant", x: 300, y: 218, anchor: "end" },
+];
+
+function activityLabel(id: string): string {
+  return ACTIVITIES.find((a) => a.id === id)?.label ?? id;
 }
 
 /**
- * Intensity over time — one series, so no legend: the heading names it.
- * Sized in viewBox units and scaled by the container, so it stays legible
- * from phone to desktop without measuring the DOM.
+ * Trends — the shape of the month.
+ *
+ * The raw record, not the interpretation: what recurs lives on Patterns.
+ * The scatter reuses the check-in's own grid so a dot's position is the
+ * person's own answer rather than a score, and every bar splits by where a
+ * check-in landed so the balance inside a slice stays visible.
  */
-function IntensityChart({ entries }: { entries: JournalEntry[] }) {
-  const [hovered, setHovered] = useState<number | null>(null);
-
-  // Oldest to newest, left to right.
-  const points = useMemo(() => [...entries].reverse(), [entries]);
-  if (points.length < 2) return null;
-
-  const W = 600;
-  const H = 190;
-  const padX = 34;
-  const padTop = 14;
-  const padBottom = 30;
-  const plotW = W - padX - 12;
-  const plotH = H - padTop - padBottom;
-
-  const x = (i: number) => padX + (i / (points.length - 1)) * plotW;
-  const y = (v: number) => padTop + (1 - v / 10) * plotH;
-
-  const line = points.map((p, i) => `${x(i)},${y(p.intensity)}`).join(" ");
-  const area = `${padX},${y(0)} ${line} ${x(points.length - 1)},${y(0)}`;
-  const active = hovered === null ? null : points[hovered];
-
-  return (
-    <figure className="chart-figure">
-      <figcaption className="section-title">How intense it's felt</figcaption>
-      <svg
-        className="chart"
-        viewBox={`0 0 ${W} ${H}`}
-        role="img"
-        aria-label={`Intensity of each check-in over time, from ${formatDate(
-          points[0].created_at,
-        )} to ${formatDate(points[points.length - 1].created_at)}, on a scale of 0 to 10.`}
-        onPointerLeave={() => setHovered(null)}
-      >
-        {/* Recessive grid — reference, not content. */}
-        {[0, 5, 10].map((v) => (
-          <g key={v}>
-            <line
-              className="chart-grid"
-              x1={padX}
-              x2={W - 12}
-              y1={y(v)}
-              y2={y(v)}
-            />
-            <text className="chart-axis" x={padX - 8} y={y(v) + 4} textAnchor="end">
-              {v}
-            </text>
-          </g>
-        ))}
-
-        <polyline className="chart-area" points={area} />
-        <polyline className="chart-line" points={line} />
-
-        {points.map((p, i) => (
-          <circle
-            key={p.id}
-            className={hovered === i ? "chart-dot chart-dot-active" : "chart-dot"}
-            cx={x(i)}
-            cy={y(p.intensity)}
-            r={hovered === i ? 6 : 4.5}
-          />
-        ))}
-
-        {/* Hit targets wider than the marks. */}
-        {points.map((p, i) => (
-          <rect
-            key={`hit-${p.id}`}
-            x={x(i) - plotW / (points.length - 1) / 2}
-            y={padTop}
-            width={plotW / (points.length - 1)}
-            height={plotH}
-            fill="transparent"
-            onPointerEnter={() => setHovered(i)}
-          />
-        ))}
-
-        <text className="chart-axis" x={padX} y={H - 8}>
-          {formatDate(points[0].created_at).split(",")[0]}
-        </text>
-        <text className="chart-axis" x={W - 12} y={H - 8} textAnchor="end">
-          {formatDate(points[points.length - 1].created_at).split(",")[0]}
-        </text>
-
-        {active && hovered !== null && (
-          <g
-            transform={`translate(${Math.min(
-              Math.max(x(hovered) - 70, 4),
-              W - 144,
-            )}, ${Math.max(y(active.intensity) - 52, 4)})`}
-            pointerEvents="none"
-          >
-            <rect className="chart-tooltip" width="140" height="42" rx="8" />
-            <text className="chart-tooltip-title" x="10" y="18">
-              {active.emotion} · {active.intensity}/10
-            </text>
-            <text className="chart-tooltip-meta" x="10" y="33">
-              {formatDate(active.created_at)}
-            </text>
-          </g>
-        )}
-      </svg>
-    </figure>
-  );
-}
-
-/** The one pattern worth putting at the top: the mind's most practised move. */
-function PatternSpotlight({
-  stat,
-  onOpen,
-}: {
-  stat: PatternStat;
-  onOpen: () => void;
-}) {
-  const detail = patternDetail(stat.slug);
-  return (
-    <section className="spotlight">
-      <p className="spotlight-eyebrow">Comes up most often</p>
-      <h2 className="spotlight-title">{patternLabel(stat.slug)}</h2>
-      {detail && <p className="spotlight-description">{detail.description}</p>}
-      <p className="spotlight-count">
-        Showed up {timesLabel(stat.count)} in your check-ins.
-      </p>
-      {stat.thoughts.length > 0 && (
-        <ul className="spotlight-thoughts">
-          {stat.thoughts.slice(0, 3).map((thought, i) => (
-            <li key={i}>“{thought}”</li>
-          ))}
-        </ul>
-      )}
-      {detail && (
-        <p className="spotlight-question">
-          Next time it turns up: <em>{detail.question}</em>
-        </p>
-      )}
-      <button type="button" className="link spotlight-link" onClick={onOpen}>
-        Read these check-ins →
-      </button>
-    </section>
-  );
-}
-
 export default function Trends() {
   const [entries, setEntries] = useState<JournalEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchJournalEntries()
@@ -170,11 +50,22 @@ export default function Trends() {
       .catch((err) => setError(err instanceof Error ? err.message : String(err)));
   }, []);
 
-  const summary = useMemo(() => summarizeJournal(entries ?? []), [entries]);
+  const summary = useMemo(
+    () => (entries ? summarizeCheckIns(entries) : null),
+    [entries],
+  );
+  const byTime = useMemo(
+    () => (entries ? splitByTimeOfDay(entries) : []),
+    [entries],
+  );
+  const byActivity = useMemo(
+    () => (entries ? splitByActivity(entries) : []),
+    [entries],
+  );
 
   if (error) {
     return (
-      <div className="journal-page">
+      <div className="reading-page">
         <p className="error">{error}</p>
       </div>
     );
@@ -182,124 +73,155 @@ export default function Trends() {
 
   if (entries === null) {
     return (
-      <div className="journal-page">
-        <p className="chat-empty">Loading your trends…</p>
+      <div className="reading-page">
+        <p className="chat-empty">Reading your check-ins…</p>
       </div>
     );
   }
 
-  if (entries.length === 0) {
+  if (!entries.length || !summary) {
     return (
-      <div className="journal-page">
-        <div className="journal-intro">
-          <h1>Trends</h1>
-          <p className="chat-empty">
-            Nothing to chart yet. Once you've had a few conversations, this is
-            where the patterns across them show up.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const kept = entries.filter((e) => e.affirmation_saved && e.affirmation);
-  const topPattern = summary.patterns[0];
-  const openPattern = (slug: string) =>
-    navigate(`/journal?pattern=${encodeURIComponent(slug)}`);
-
-  return (
-    <div className="journal-page">
-      <div className="journal-intro">
-        <h1>Trends</h1>
-        <p className="journal-sub">
-          What's been showing up across your check-ins — the feelings, and the
-          thoughts underneath them.
+      <div className="reading-page">
+        <header className="page-head">
+          <span className="eyebrow">Trends</span>
+          <h1>The shape of the month</h1>
+        </header>
+        <p className="chat-empty">
+          Nothing to chart yet. Once you've had a few conversations, this is
+          where the shape of them shows up.
         </p>
       </div>
+    );
+  }
 
-      <section className="stat-tiles">
-        <div className="stat-tile">
-          <span className="stat-value">{summary.entryCount}</span>
-          <span className="stat-label">check-ins</span>
-        </div>
-        <div className="stat-tile">
-          <span className="stat-value">{summary.thoughtCount}</span>
-          <span className="stat-label">thoughts caught</span>
-        </div>
-        <div className="stat-tile">
-          <span className="stat-value">{summary.reframedCount}</span>
-          <span className="stat-label">reframed</span>
-        </div>
-        {summary.averageIntensity !== null && (
-          <div className="stat-tile">
-            <span className="stat-value">
-              {summary.averageIntensity.toFixed(1)}
-            </span>
-            <span className="stat-label">
-              average intensity
-              {summary.intensityShift !== null &&
-                Math.abs(summary.intensityShift) >= 0.5 && (
-                  <span
-                    className={
-                      summary.intensityShift < 0
-                        ? "stat-trend easing"
-                        : "stat-trend rising"
-                    }
-                  >
-                    {summary.intensityShift < 0 ? "↓" : "↑"}{" "}
-                    {Math.abs(summary.intensityShift).toFixed(1)} lately
-                  </span>
-                )}
-            </span>
-          </div>
-        )}
+  return (
+    <div className="reading-page">
+      <header className="page-head">
+        <span className="eyebrow">Trends · last 30 days</span>
+        <h1>The shape of the month</h1>
+      </header>
+
+      <section className="head-section">
+        <p className="lead">
+          One dot for each check-in, sitting where that check-in landed. The
+          number in each corner is how many went there.
+        </p>
+
+        <svg
+          className="grid-plot"
+          viewBox="0 0 340 266"
+          role="img"
+          aria-label={`${summary.total} check-ins plotted on the mood grid: ${summary.cool} unpleasant, ${summary.warm} pleasant.`}
+        >
+          <rect x="30" y="15" width="140" height="105" className="q-high-un" />
+          <rect x="170" y="15" width="140" height="105" className="q-high-pl" />
+          <rect x="30" y="120" width="140" height="105" className="q-low-un" />
+          <rect x="170" y="120" width="140" height="105" className="q-low-pl" />
+
+          <line x1="170" y1="15" x2="170" y2="225" className="grid-axis" />
+          <line x1="30" y1="120" x2="310" y2="120" className="grid-axis" />
+
+          {CORNERS.map((c) => (
+            <text
+              key={c.id}
+              x={c.x}
+              y={c.y}
+              textAnchor={c.anchor}
+              className={`grid-count grid-count-${QUADRANTS[c.id].tone}`}
+            >
+              {summary.quadrants[c.id]}
+            </text>
+          ))}
+
+          {entries.map((entry) => {
+            const { x, y } = pointOf(entry);
+            const { cx, cy } = place(x, y);
+            return (
+              <circle
+                key={entry.id}
+                cx={cx}
+                cy={cy}
+                r="6.5"
+                className={`grid-dot tone-fill-${toneOfEntry(entry)}`}
+              >
+                <title>{`${entry.emotion} — ${new Date(entry.created_at).toLocaleDateString()}`}</title>
+              </circle>
+            );
+          })}
+
+          <text x="30" y="10" className="grid-label">
+            HIGH ENERGY
+          </text>
+          <text x="30" y="243" className="grid-label">
+            LOW ENERGY
+          </text>
+          <text x="30" y="261" className="grid-label">
+            ← UNPLEASANT
+          </text>
+          <text x="310" y="261" textAnchor="end" className="grid-label">
+            PLEASANT →
+          </text>
+        </svg>
+
+        <p className="observation">
+          {summary.total} check-ins — {summary.cool} landed unpleasant,{" "}
+          {summary.warm} pleasant.
+        </p>
       </section>
 
-      <IntensityChart entries={entries} />
-
-      {topPattern && topPattern.count > 1 && (
-        <PatternSpotlight
-          stat={topPattern}
-          onOpen={() => openPattern(topPattern.slug)}
-        />
-      )}
-
-      {summary.patterns.length > 0 && (
-        <section className="pattern-strip">
-          <h2 className="section-title">Patterns in your thinking</h2>
-          <div className="pattern-chips">
-            {summary.patterns.map((stat) => (
-              <button
-                key={stat.slug}
-                type="button"
-                className="pattern-chip"
-                title={patternDetail(stat.slug)?.description}
-                onClick={() => openPattern(stat.slug)}
-              >
-                {patternLabel(stat.slug)}
-                <span className="pattern-chip-count">{stat.count}</span>
-              </button>
-            ))}
-          </div>
-          <p className="pattern-hint">
-            Tap one to read the check-ins it showed up in.
-          </p>
+      {byTime.length > 0 && (
+        <section>
+          <span className="eyebrow">When</span>
+          <SplitList rows={byTime} />
         </section>
       )}
 
-      {kept.length > 0 && (
-        <section className="kept">
-          <h2 className="section-title">Lines you kept</h2>
-          <div className="kept-row">
-            {kept.map((entry) => (
-              <blockquote key={entry.id} className="kept-card">
-                {entry.affirmation}
-                <cite>{formatDate(entry.created_at)}</cite>
-              </blockquote>
-            ))}
-          </div>
+      {byActivity.length > 0 && (
+        <section>
+          <span className="eyebrow">What they were about</span>
+          <SplitList rows={byActivity} labelOf={activityLabel} />
         </section>
       )}
+
+      <p className="reading-foot">
+        Every check-in you logged, as you logged it. Neither colour is the good
+        one — they only mark where on the grid a check-in landed.
+      </p>
+    </div>
+  );
+}
+
+function SplitList({
+  rows,
+  labelOf = (s: string) => s,
+}: {
+  rows: Split[];
+  labelOf?: (s: string) => string;
+}) {
+  const most = Math.max(...rows.map((r) => r.total));
+  return (
+    <div className="split-list">
+      {rows.map((row) => (
+        <div key={row.label} className="split-row">
+          <div className="split-top">
+            <span>{labelOf(row.label)}</span>
+            <span className="split-n">{row.total}</span>
+          </div>
+          {/* The bar's width is the count; the segments inside are the
+              balance, so a slice that is all one tone reads at a glance. */}
+          <div
+            className="split-bar split-bar-split"
+            style={{ width: `${(row.total / most) * 100}%` }}
+          >
+            {row.cool > 0 && (
+              <i className="tone-fill tone-cool" style={{ flex: row.cool }} />
+            )}
+            {row.warm > 0 && (
+              <i className="tone-fill tone-warm" style={{ flex: row.warm }} />
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
