@@ -891,3 +891,84 @@
 .grid-count-cool { fill: var(--cool-ink); }
 .grid-count-warm { fill: var(--warm-ink); }
 .grid-label { font-size: 9px; fill: var(--text-muted); letter-spacing: 0.08em; }
+
+/* --- Check-in --- */
+
+.checkin-cta {
+  width: 100%;
+  min-height: 52px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.calendar-nav {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+}
+.calendar-nav:hover { background: var(--surface); }
+.calendar-nav:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+
+.calendar-weekdays {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.calendar-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  border-radius: 10px;
+}
+
+.calendar-cell-empty { visibility: hidden; }
+
+.calendar-cell-today {
+  background: var(--accent-bg);
+}
+
+.calendar-daynum {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-dots {
+  display: flex;
+  gap: 3px;
+}

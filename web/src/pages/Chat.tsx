@@ -1,16 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/AuthContext";
 import {
+  THREAD_STORAGE_KEY,
   createThread,
   fetchThreadHistory,
   sendMessage,
   type AgentMessage,
 } from "../lib/agent";
-import MoodLogFlow from "../components/moodlog/MoodLogFlow";
-import { draftToMessage, type MoodLogDraft } from "../lib/emotions";
-
-const THREAD_STORAGE_KEY = "healthy-emotion-thread-id";
-
 
 function isVisible(m: AgentMessage): boolean {
   if (m.type === "human") return true;
@@ -18,6 +14,14 @@ function isVisible(m: AgentMessage): boolean {
   return false;
 }
 
+/**
+ * Talk — just the conversation.
+ *
+ * Starting a check-in used to double as starting a conversation, which made
+ * this page do two things at once. Now a check-in opens its own flow and
+ * lands its opening line here as an ordinary first message, so this page is
+ * only ever a thread with the agent — including one begun by typing first.
+ */
 export default function Chat() {
   const { session } = useAuth();
   const [threadId, setThreadId] = useState<string | null>(null);
@@ -36,8 +40,8 @@ export default function Chat() {
     if (existing) {
       setThreadId(existing);
       // A reused thread may already have history on the server — rehydrate
-      // it, otherwise a page reload would show the empty-state picker again
-      // and send a stray "first" message into an already-started thread.
+      // it, otherwise a page reload would show the empty state again and
+      // send a stray "first" message into an already-started thread.
       fetchThreadHistory(accessToken, existing)
         .then(setMessages)
         .catch((err) => setError(err instanceof Error ? err.message : String(err)))
@@ -90,7 +94,6 @@ export default function Chat() {
     }
   }
 
-  const isFirstTurn = messages.length === 0;
   const visibleMessages = messages.filter(isVisible);
 
   if (loadingHistory) {
@@ -103,10 +106,9 @@ export default function Chat() {
 
   return (
     <div className="chat-page">
-      {!isFirstTurn && (
       <div className="chat-scroll">
-        {visibleMessages.length === 0 && !isFirstTurn && (
-          <p className="chat-empty">Starting a new conversation…</p>
+        {visibleMessages.length === 0 && (
+          <p className="chat-empty">Say what&rsquo;s on your mind.</p>
         )}
         {visibleMessages.map((m, i) => (
           <div
@@ -121,39 +123,29 @@ export default function Chat() {
         )}
         <div ref={bottomRef} />
       </div>
-      )}
 
       {error && <p className="error chat-error">{error}</p>}
 
-      {isFirstTurn ? (
-        <div className="min-h-0 flex-1">
-          <MoodLogFlow
-            saving={sending}
-            onComplete={(draft: MoodLogDraft) => handleSend(draftToMessage(draft))}
-          />
-        </div>
-      ) : (
-        <form
-          className="chat-input-row"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend(input);
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Type a message…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={sending}
-          />
-          <button type="submit" disabled={sending || !input.trim()}>
-            Send
-          </button>
-        </form>
-      )}
+      <form
+        className="chat-input-row"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSend(input);
+        }}
+      >
+        <input
+          type="text"
+          placeholder="Type a message…"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          disabled={sending}
+        />
+        <button type="submit" disabled={sending || !input.trim()}>
+          Send
+        </button>
+      </form>
 
-      {!isFirstTurn && (
+      {visibleMessages.length > 0 && (
         <button type="button" className="link new-convo" onClick={startNewConversation}>
           Start a new conversation
         </button>
