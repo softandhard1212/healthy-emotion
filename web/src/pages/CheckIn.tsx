@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CalendarCheck, ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
 import { THREAD_STORAGE_KEY, createThread, sendMessage } from "../lib/agent";
 import { draftToMessage, type MoodLogDraft } from "../lib/emotions";
 import {
   fetchJournalEntries,
+  setAffirmationSaved,
   toneOfEntry,
   type JournalEntry,
 } from "../lib/journal";
+import { patternLabel } from "../lib/patterns";
 import MoodLogFlow from "../components/moodlog/MoodLogFlow";
+import EntryCard from "../components/EntryCard";
 
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
@@ -17,28 +22,42 @@ function dayKey(d: Date): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
+function shortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 /**
- * Check-in — the daily ritual, kept apart from Talk.
+ * Check-in — the daily ritual, and the record of it, in one place.
  *
- * Opening the mood picker and having a conversation about it are different
- * asks: one takes a few taps, the other is a back-and-forth that shouldn't
- * be a precondition for either. Finishing a check-in still hands its
- * opening line to the agent, same as before, but now as a normal first
- * message on the Talk page rather than something this page has to host.
- * The calendar underneath is the same question over time — which days you
- * showed up, and roughly where they landed.
+ * Checking in is the one thing this page has to make easy, so the button is
+ * the page: full-width, front and centre, nothing competing with it. Your
+ * history is one tap away rather than gone — folded behind "This month" so
+ * it doesn't have to share the top of the screen with the button, opening
+ * into a calendar you can read a day at a time or, since a calendar is a
+ * clumsy way to read fifteen entries in a row, unfold into the same plain
+ * list Journal used to be.
  */
 export default function CheckIn() {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [entries, setEntries] = useState<JournalEntry[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const [flowOpen, setFlowOpen] = useState(false);
   const [starting, setStarting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [viewMonth, setViewMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [activePattern, setActivePattern] = useState<string | null>(null);
 
   useEffect(() => {
     fetchJournalEntries()
@@ -47,15 +66,49 @@ export default function CheckIn() {
   }, []);
 
   const byDay = useMemo(() => {
-    const map = new Map<string, { cool: number; warm: number }>();
+    const map = new Map<string, { cool: number; warm: number; entries: JournalEntry[] }>();
     for (const entry of entries ?? []) {
       const key = dayKey(new Date(entry.created_at));
-      const row = map.get(key) ?? { cool: 0, warm: 0 };
+      const row = map.get(key) ?? { cool: 0, warm: 0, entries: [] };
       row[toneOfEntry(entry)] += 1;
+      row.entries.push(entry);
       map.set(key, row);
     }
     return map;
   }, [entries]);
+
+  const visibleAll = activePattern
+    ? (entries ?? []).filter((e) => (e.thinking_patterns ?? []).includes(activePattern))
+    : entries ?? [];
+
+  function selectDay(key: string) {
+    setSelectedDay((current) => (current === key ? null : key));
+  }
+
+  function openShowAll(pattern: string | null) {
+    setActivePattern(pattern);
+    setShowAll(true);
+    setSelectedDay(null);
+  }
+
+  async function handleToggleKeep(entry: JournalEntry) {
+    const next = !entry.affirmation_saved;
+    setEntries((current) =>
+      (current ?? []).map((e) =>
+        e.id === entry.id ? { ...e, affirmation_saved: next } : e,
+      ),
+    );
+    try {
+      await setAffirmationSaved(entry.id, next);
+    } catch (err) {
+      setEntries((current) =>
+        (current ?? []).map((e) =>
+          e.id === entry.id ? { ...e, affirmation_saved: !next } : e,
+        ),
+      );
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
 
   async function handleComplete(draft: MoodLogDraft) {
     const accessToken = session?.access_token;
@@ -93,23 +146,125 @@ export default function CheckIn() {
       </header>
 
       <section className="head-section">
-        <button type="button" className="checkin-cta" onClick={() => setFlowOpen(true)}>
-          Check in
-        </button>
+        <motion.button
+          type="button"
+          className="checkin-hero"
+          onClick={() => setFlowOpen(true)}
+          whileTap={{ scale: 0.97 }}
+        >
+          <span className="checkin-hero-icon">
+            <CalendarCheck size={30} strokeWidth={1.8} />
+          </span>
+          <span className="checkin-hero-label">Check in</span>
+          <span className="checkin-hero-hint">Takes about a minute</span>
+        </motion.button>
         {error && <p className="error">{error}</p>}
       </section>
 
       <section>
-        <span className="eyebrow">This month</span>
-        <Calendar month={viewMonth} onMonth={setViewMonth} byDay={byDay} />
-        <p className="tone-legend">
-          <span>
-            <i className="tone-dot tone-cool" /> landed unpleasant
-          </span>
-          <span>
-            <i className="tone-dot tone-warm" /> landed pleasant
-          </span>
-        </p>
+        <button
+          type="button"
+          className="checkin-fold"
+          aria-expanded={calendarOpen}
+          onClick={() => setCalendarOpen((v) => !v)}
+        >
+          <span className="eyebrow">This month</span>
+          <ChevronDown
+            size={16}
+            strokeWidth={2}
+            className={calendarOpen ? "checkin-fold-chev open" : "checkin-fold-chev"}
+          />
+        </button>
+
+        {calendarOpen && !showAll && (
+          <>
+            <Calendar
+              month={viewMonth}
+              onMonth={(m) => {
+                setViewMonth(m);
+                setSelectedDay(null);
+              }}
+              byDay={byDay}
+              selectedDay={selectedDay}
+              onSelectDay={selectDay}
+            />
+            <p className="tone-legend">
+              <span>
+                <i className="tone-dot tone-cool" /> landed unpleasant
+              </span>
+              <span>
+                <i className="tone-dot tone-warm" /> landed pleasant
+              </span>
+            </p>
+
+            {selectedDay && byDay.get(selectedDay) && (
+              <div className="day-panel">
+                <div className="day-panel-head">
+                  <span className="section-title">
+                    {shortDate(byDay.get(selectedDay)!.entries[0].created_at)}
+                  </span>
+                  <button type="button" className="link" onClick={() => setSelectedDay(null)}>
+                    Close
+                  </button>
+                </div>
+                <div className="journal-timeline">
+                  {byDay.get(selectedDay)!.entries.map((entry) => (
+                    <EntryCard
+                      key={entry.id}
+                      entry={entry}
+                      onToggleKeep={handleToggleKeep}
+                      onSelectPattern={(slug) => openShowAll(slug)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button type="button" className="link" onClick={() => openShowAll(null)}>
+              Show every check-in
+            </button>
+          </>
+        )}
+
+        {calendarOpen && showAll && (
+          <div className="checkin-all">
+            {activePattern ? (
+              <h2 className="section-title">
+                {visibleAll.length} check-in{visibleAll.length === 1 ? "" : "s"} with{" "}
+                {patternLabel(activePattern).toLowerCase()}
+                <button
+                  type="button"
+                  className="link clear-filter"
+                  onClick={() => setActivePattern(null)}
+                >
+                  Show all
+                </button>
+              </h2>
+            ) : (
+              <button type="button" className="link" onClick={() => setShowAll(false)}>
+                Back to calendar
+              </button>
+            )}
+
+            {entries !== null && entries.length === 0 && (
+              <p className="chat-empty">
+                Nothing here yet. After a conversation in Chat, this is where
+                the thought underneath the feeling gets written down.
+              </p>
+            )}
+
+            <div className="journal-timeline">
+              {visibleAll.map((entry) => (
+                <EntryCard
+                  key={entry.id}
+                  entry={entry}
+                  onToggleKeep={handleToggleKeep}
+                  onSelectPattern={(slug) => openShowAll(slug)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
@@ -119,10 +274,14 @@ function Calendar({
   month,
   onMonth,
   byDay,
+  selectedDay,
+  onSelectDay,
 }: {
   month: Date;
   onMonth: (d: Date) => void;
-  byDay: Map<string, { cool: number; warm: number }>;
+  byDay: Map<string, { cool: number; warm: number; entries: JournalEntry[] }>;
+  selectedDay: string | null;
+  onSelectDay: (key: string) => void;
 }) {
   const year = month.getFullYear();
   const m = month.getMonth();
@@ -169,18 +328,38 @@ function Calendar({
           if (day === null) {
             return <span key={i} className="calendar-cell calendar-cell-empty" />;
           }
-          const row = byDay.get(`${year}-${m}-${day}`);
+          const key = `${year}-${m}-${day}`;
+          const row = byDay.get(key);
           const isToday = isCurrentMonth && today.getDate() === day;
+          const isSelected = selectedDay === key;
+          const classes = [
+            "calendar-cell",
+            isToday && "calendar-cell-today",
+            isSelected && "calendar-cell-selected",
+          ]
+            .filter(Boolean)
+            .join(" ");
+          if (!row) {
+            return (
+              <span key={i} className={classes}>
+                <span className="calendar-daynum">{day}</span>
+              </span>
+            );
+          }
           return (
-            <span key={i} className={`calendar-cell${isToday ? " calendar-cell-today" : ""}`}>
+            <button
+              key={i}
+              type="button"
+              className={classes}
+              aria-pressed={isSelected}
+              onClick={() => onSelectDay(key)}
+            >
               <span className="calendar-daynum">{day}</span>
-              {row && (
-                <span className="calendar-dots">
-                  {row.cool > 0 && <i className="tone-dot tone-cool" />}
-                  {row.warm > 0 && <i className="tone-dot tone-warm" />}
-                </span>
-              )}
-            </span>
+              <span className="calendar-dots">
+                {row.cool > 0 && <i className="tone-dot tone-cool" />}
+                {row.warm > 0 && <i className="tone-dot tone-warm" />}
+              </span>
+            </button>
           );
         })}
       </div>

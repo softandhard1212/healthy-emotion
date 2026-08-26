@@ -238,27 +238,7 @@
   font-weight: 600;
 }
 
-/* --- Journal --- */
-
-.journal-page {
-  width: 100%;
-  max-width: 640px;
-  height: 100%;
-  overflow-y: auto;
-  padding: 1rem 1rem 2.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
-
-.journal-intro h1 {
-  margin-bottom: 0.15rem;
-}
-
-.journal-sub {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
+/* --- Journal entries (rendered on Check-in — see EntryCard) --- */
 
 .section-title {
   font-size: 0.85rem;
@@ -894,15 +874,82 @@
 
 /* --- Check-in --- */
 
-.checkin-cta {
+.checkin-hero {
   width: 100%;
-  min-height: 52px;
+  min-height: 34vh;
   border: none;
-  border-radius: 999px;
+  border-radius: 28px;
   background: var(--accent);
   color: var(--accent-contrast);
-  font-size: 1rem;
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 2rem 1.5rem;
+}
+
+.checkin-hero-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.checkin-hero-label {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.checkin-hero-hint {
+  font-size: 0.82rem;
+  opacity: 0.85;
+}
+
+.checkin-fold {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  padding: 0.2rem 0;
+  color: inherit;
+  text-align: left;
+}
+.checkin-fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+.checkin-fold-chev {
+  color: var(--text-muted);
+  transition: transform 160ms ease;
+}
+.checkin-fold-chev.open { transform: rotate(180deg); }
+
+.day-panel {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.9rem 1rem 0.2rem;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.day-panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.day-panel-head .section-title { margin: 0; }
+
+.checkin-all {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
 }
 
 .calendar {
@@ -955,13 +1002,29 @@
   justify-content: center;
   gap: 0.2rem;
   border-radius: 10px;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
 }
+
+button.calendar-cell {
+  cursor: pointer;
+}
+button.calendar-cell:hover { background: var(--surface); }
+button.calendar-cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .calendar-cell-empty { visibility: hidden; }
 
 .calendar-cell-today {
   background: var(--accent-bg);
 }
+
+.calendar-cell-selected {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+button.calendar-cell-selected:hover { background: var(--accent); }
 
 .calendar-daynum {
   font-size: 0.8rem;
