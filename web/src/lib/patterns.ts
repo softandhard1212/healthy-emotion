@@ -113,6 +113,23 @@ export const THINKING_PATTERNS: Record<string, ThinkingPattern> = {
     tone: "cool",
     question: "What are you not seeing about where they actually are?",
   },
+  // --- Cool patterns caught in a good-feeling moment. The relief was
+  // real; it just traces back to avoiding something rather than to the
+  // thing itself being resolved. ---
+  pleasing_relief: {
+    label: "Relief that came from going along",
+    description:
+      "The good feeling followed agreeing, deferring, or smoothing it over — relief at avoiding someone's disappointment, not at the thing itself getting resolved.",
+    tone: "cool",
+    question: "What would you have said if it didn't cost you anything to say it?",
+  },
+  borrowed_footing: {
+    label: "Steadiness borrowed from someone else",
+    description:
+      "The calm came from someone else deciding, leading, or backing you up — not from your own read of the situation.",
+    tone: "cool",
+    question: "Underneath what they think, what do you actually think?",
+  },
   // --- Lifts. Recorded the same way, ranked in the same list, described in
   // the same register: what happened, not how well you did. ---
   making_something_real: {

@@ -1,5 +1,8 @@
 const API_BASE = import.meta.env.VITE_AGENT_API_URL;
 
+/** Shared between Check-in and Talk so a check-in's opener lands in the same thread. */
+export const THREAD_STORAGE_KEY = "healthy-emotion-thread-id";
+
 export interface AgentMessage {
   type: "human" | "ai" | "tool" | string;
   content: string;

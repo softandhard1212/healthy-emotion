@@ -2,8 +2,8 @@ import { Navigate, NavLink, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { supabase } from "./lib/supabase";
 import Login from "./pages/Login";
+import CheckIn from "./pages/CheckIn";
 import Chat from "./pages/Chat";
-import Journal from "./pages/Journal";
 import Trends from "./pages/Trends";
 import Patterns from "./pages/Patterns";
 import "./App.css";
@@ -23,10 +23,10 @@ function AppShell() {
     <div className="app-shell">
       <nav className="top-nav">
         <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")}>
-          Chat
+          Check-in
         </NavLink>
-        <NavLink to="/journal" className={({ isActive }) => (isActive ? "active" : "")}>
-          Journal
+        <NavLink to="/talk" className={({ isActive }) => (isActive ? "active" : "")}>
+          Chat
         </NavLink>
         <NavLink to="/patterns" className={({ isActive }) => (isActive ? "active" : "")}>
           Patterns
@@ -44,8 +44,8 @@ function AppShell() {
       </nav>
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<Chat />} />
-          <Route path="/journal" element={<Journal />} />
+          <Route path="/" element={<CheckIn />} />
+          <Route path="/talk" element={<Chat />} />
           <Route path="/patterns" element={<Patterns />} />
           <Route path="/trends" element={<Trends />} />
           <Route path="*" element={<Navigate to="/" replace />} />

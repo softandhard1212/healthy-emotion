@@ -89,6 +89,8 @@ export interface PatternInstance {
   emotion: string;
   activities: string[];
   tone: PatternTone;
+  /** What the moment turned out to be about, when the conversation found it. */
+  revealed: string | null;
 }
 
 export interface PatternStat {
@@ -133,6 +135,7 @@ export function summarizePatterns(entries: JournalEntry[]): PatternStat[] {
         emotion: entry.emotion,
         activities: entry.activities ?? [],
         tone,
+        revealed: entry.revealed,
       });
       // Entries arrive newest-first, so the earliest seen keeps moving back.
       stat.firstSeen = entry.created_at;
