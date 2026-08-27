@@ -710,8 +710,6 @@
 .tone-warm { background: var(--warm-mid); }
 .tone-text-cool .instance-said { color: var(--cool-ink); font-style: italic; }
 .tone-text-warm .instance-said { color: var(--warm-ink); }
-.tone-rail-cool { border-left-color: var(--cool-mid); }
-.tone-rail-warm { border-left-color: var(--warm-mid); }
 .tone-fill-cool { fill: var(--cool-mid); }
 .tone-fill-warm { fill: var(--warm-mid); }
 
@@ -754,28 +752,16 @@
 }
 .pattern-row-chev { color: var(--text-muted); line-height: 1; }
 
-/* --- the worked example --- */
-
-.pattern-example {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1rem 1.05rem;
+/* What a recurrence turned out to be about, under the quote it came from. */
+.instance-revealed {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.4rem;
+  margin: 0.15rem 0 0;
+  font-size: 0.81rem;
+  line-height: 1.45;
+  color: var(--accent);
 }
-.pattern-example-head { display: flex; align-items: flex-start; gap: 0.65rem; }
-.pattern-example-head .tone-dot { margin-top: 0.42rem; }
-.pattern-example-head > div { display: flex; flex-direction: column; gap: 0.1rem; }
-.pattern-example-head b { font-size: 1.05rem; font-weight: 600; }
-.pattern-example-head span { font-size: 0.79rem; color: var(--text-muted); line-height: 1.5; }
-.pattern-example-n {
-  margin-left: auto;
-  font-size: 0.79rem;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-}
+.instance-revealed i { flex: none; opacity: 0.6; font-style: normal; }
 
 /* --- occurrences --- */
 
@@ -858,19 +844,19 @@
 .split-bar i.tone-cool { background: var(--cool-mid); }
 .split-bar i.tone-warm { background: var(--warm-mid); }
 
-/* --- the circumplex scatter --- */
+/* --- the mood wheel --- */
 
-.grid-plot { display: block; width: 100%; height: auto; }
-.q-high-un { fill: var(--tint-high-un); opacity: 0.15; }
-.q-high-pl { fill: var(--warm-mid); opacity: 0.2; }
-.q-low-un { fill: var(--cool-mid); opacity: 0.22; }
-.q-low-pl { fill: var(--tint-low-pl); opacity: 0.15; }
-.grid-axis { stroke: var(--border); stroke-width: 1; }
-.grid-dot { stroke: var(--surface); stroke-width: 1.5; fill-opacity: 0.85; }
-.grid-count { font-size: 19px; font-weight: 700; opacity: 0.5; }
-.grid-count-cool { fill: var(--cool-ink); }
-.grid-count-warm { fill: var(--warm-ink); }
-.grid-label { font-size: 9px; fill: var(--text-muted); letter-spacing: 0.08em; }
+.mood-wheel { display: block; width: 100%; height: auto; }
+.wheel-ground { fill: var(--surface); }
+.wheel-rim { fill: none; stroke: var(--border); stroke-width: 1; }
+/* stop-color lives on a class so the four tints follow the theme. */
+.wheel-stop-high-un { stop-color: var(--tint-high-un); }
+.wheel-stop-high-pl { stop-color: var(--warm-mid); }
+.wheel-stop-low-un { stop-color: var(--cool-mid); }
+.wheel-stop-low-pl { stop-color: var(--tint-low-pl); }
+/* No outer ring on the dot — against a soft wash it read as a hole. */
+.wheel-dot { fill-opacity: 0.9; }
+.wheel-label { font-size: 9.5px; fill: var(--text-muted); letter-spacing: 0.08em; }
 
 /* --- Check-in --- */
 

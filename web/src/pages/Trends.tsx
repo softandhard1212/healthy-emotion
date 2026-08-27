@@ -9,24 +9,20 @@ import {
   type JournalEntry,
   type Split,
 } from "../lib/journal";
-import { ACTIVITIES, QUADRANTS, type QuadrantId } from "../lib/emotions";
+import { ACTIVITIES } from "../lib/emotions";
 
-const PLOT = { left: 30, top: 15, w: 280, h: 210 };
+/** The wheel's centre and radius, in the 340×300 viewBox. */
+const WHEEL = { cx: 170, cy: 150, r: 125 };
+/** Dots stop short of the rim so an extreme reading still reads as inside. */
+const REACH = 85;
 
-/** -10..+10 on both axes; screen y is inverted so up is high energy. */
+/** -10..+10 on both axes; screen y is inverted so up is more energised. */
 function place(x: number, y: number) {
   return {
-    cx: PLOT.left + ((x + 10) / 20) * PLOT.w,
-    cy: PLOT.top + ((10 - y) / 20) * PLOT.h,
+    cx: WHEEL.cx + (x / 10) * REACH,
+    cy: WHEEL.cy - (y / 10) * REACH,
   };
 }
-
-const CORNERS: { id: QuadrantId; x: number; y: number; anchor: "start" | "end" }[] = [
-  { id: "highUnpleasant", x: 40, y: 38, anchor: "start" },
-  { id: "highPleasant", x: 300, y: 38, anchor: "end" },
-  { id: "lowUnpleasant", x: 40, y: 218, anchor: "start" },
-  { id: "lowPleasant", x: 300, y: 218, anchor: "end" },
-];
 
 function activityLabel(id: string): string {
   return ACTIVITIES.find((a) => a.id === id)?.label ?? id;
@@ -103,35 +99,50 @@ export default function Trends() {
 
       <section className="head-section">
         <p className="lead">
-          One dot for each check-in, sitting where that check-in landed. The
-          number in each corner is how many went there.
+          One dot for each check-in, sitting where it landed.
         </p>
 
+        {/* A wheel rather than a ruled grid: the four tints bleed into each
+            other instead of meeting at an axis, so a reading near the middle
+            reads as in-between rather than as scoring zero on two scales. */}
         <svg
-          className="grid-plot"
-          viewBox="0 0 340 266"
+          className="mood-wheel"
+          viewBox="0 0 340 300"
           role="img"
-          aria-label={`${summary.total} check-ins plotted on the mood grid: ${summary.cool} unpleasant, ${summary.warm} pleasant.`}
+          aria-label={`${summary.total} check-ins placed on the mood wheel: ${summary.cool} unpleasant, ${summary.warm} pleasant.`}
         >
-          <rect x="30" y="15" width="140" height="105" className="q-high-un" />
-          <rect x="170" y="15" width="140" height="105" className="q-high-pl" />
-          <rect x="30" y="120" width="140" height="105" className="q-low-un" />
-          <rect x="170" y="120" width="140" height="105" className="q-low-pl" />
+          <defs>
+            {/* Centred off-axis and wider than the wheel, so each tint is
+                strongest in its own quarter and gone by the far side. */}
+            <radialGradient id="wheel-high-un" cx="100" cy="80" r="180" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" className="wheel-stop-high-un" stopOpacity="0.4" />
+              <stop offset="100%" className="wheel-stop-high-un" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="wheel-high-pl" cx="240" cy="80" r="180" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" className="wheel-stop-high-pl" stopOpacity="0.45" />
+              <stop offset="100%" className="wheel-stop-high-pl" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="wheel-low-un" cx="100" cy="220" r="180" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" className="wheel-stop-low-un" stopOpacity="0.5" />
+              <stop offset="100%" className="wheel-stop-low-un" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="wheel-low-pl" cx="240" cy="220" r="180" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" className="wheel-stop-low-pl" stopOpacity="0.4" />
+              <stop offset="100%" className="wheel-stop-low-pl" stopOpacity="0" />
+            </radialGradient>
+            <clipPath id="wheel-clip">
+              <circle cx={WHEEL.cx} cy={WHEEL.cy} r={WHEEL.r} />
+            </clipPath>
+          </defs>
 
-          <line x1="170" y1="15" x2="170" y2="225" className="grid-axis" />
-          <line x1="30" y1="120" x2="310" y2="120" className="grid-axis" />
-
-          {CORNERS.map((c) => (
-            <text
-              key={c.id}
-              x={c.x}
-              y={c.y}
-              textAnchor={c.anchor}
-              className={`grid-count grid-count-${QUADRANTS[c.id].tone}`}
-            >
-              {summary.quadrants[c.id]}
-            </text>
-          ))}
+          <g clipPath="url(#wheel-clip)">
+            <circle cx={WHEEL.cx} cy={WHEEL.cy} r={WHEEL.r} className="wheel-ground" />
+            <rect x="0" y="0" width="340" height="300" fill="url(#wheel-high-un)" />
+            <rect x="0" y="0" width="340" height="300" fill="url(#wheel-high-pl)" />
+            <rect x="0" y="0" width="340" height="300" fill="url(#wheel-low-un)" />
+            <rect x="0" y="0" width="340" height="300" fill="url(#wheel-low-pl)" />
+          </g>
+          <circle cx={WHEEL.cx} cy={WHEEL.cy} r={WHEEL.r} className="wheel-rim" />
 
           {entries.map((entry) => {
             const { x, y } = pointOf(entry);
@@ -142,25 +153,27 @@ export default function Trends() {
                 cx={cx}
                 cy={cy}
                 r="6.5"
-                className={`grid-dot tone-fill-${toneOfEntry(entry)}`}
+                className={`wheel-dot tone-fill-${toneOfEntry(entry)}`}
               >
                 <title>{`${entry.emotion} — ${new Date(entry.created_at).toLocaleDateString()}`}</title>
               </circle>
             );
           })}
 
-          <text x="30" y="10" className="grid-label">
-            HIGH ENERGY
-          </text>
-          <text x="30" y="243" className="grid-label">
-            LOW ENERGY
-          </text>
-          <text x="30" y="261" className="grid-label">
-            ← UNPLEASANT
-          </text>
-          <text x="310" y="261" textAnchor="end" className="grid-label">
-            PLEASANT →
-          </text>
+          <g className="wheel-label">
+            <text x="170" y="14" textAnchor="middle">
+              ENERGISED
+            </text>
+            <text x="170" y="293" textAnchor="middle">
+              SETTLED
+            </text>
+            <text x="34" y="153">
+              UNPLEASANT
+            </text>
+            <text x="306" y="153" textAnchor="end">
+              PLEASANT
+            </text>
+          </g>
         </svg>
 
         <p className="observation">
@@ -185,7 +198,7 @@ export default function Trends() {
 
       <p className="reading-foot">
         Every check-in you logged, as you logged it. Neither colour is the good
-        one — they only mark where on the grid a check-in landed.
+        one — they only mark where on the wheel a check-in landed.
       </p>
     </div>
   );

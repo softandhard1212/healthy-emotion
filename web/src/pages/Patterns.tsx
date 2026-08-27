@@ -80,15 +80,10 @@ export default function Patterns() {
 
   if (open) return <PatternDetail stat={open} onBack={() => setParams({})} />;
 
-  // The list alone is names and counts — it shows THAT something recurs but
-  // never what recognising it gives you. The most frequent one is worked
-  // through underneath so that's visible without a tap.
-  const example = stats[0];
-
   return (
     <div className="reading-page">
       <header className="page-head">
-        <span className="eyebrow">Patterns · last 30 days</span>
+        <span className="eyebrow">Patterns</span>
         <h1>What keeps coming back</h1>
       </header>
 
@@ -113,46 +108,13 @@ export default function Patterns() {
         </ul>
         <p className="tone-legend">
           <span>
-            <i className="tone-dot tone-cool" /> showed up on hard days
+            <i className="tone-dot tone-cool" /> landed unpleasant
           </span>
           <span>
-            <i className="tone-dot tone-warm" /> on easier ones
+            <i className="tone-dot tone-warm" /> landed pleasant
           </span>
         </p>
       </section>
-
-      <section>
-        <span className="eyebrow">What that looks like</span>
-        <p className="lead">
-          Tapping a pattern opens everything it has done in your record. This
-          is the one that came up most.
-        </p>
-        <ExampleCard stat={example} />
-      </section>
-
-      <p className="reading-foot">
-        Taken from what you said, in the order you said it. Nothing is scored,
-        and neither colour is the good one — they only mark where on the grid
-        the check-ins carrying that pattern landed.
-      </p>
-    </div>
-  );
-}
-
-function ExampleCard({ stat }: { stat: PatternStat }) {
-  const detail = patternDetail(stat.slug);
-  return (
-    <div className="pattern-example">
-      <div className="pattern-example-head">
-        <span className={`tone-dot tone-${stat.tone}`} />
-        <div>
-          <b>{patternLabel(stat.slug)}</b>
-          {detail && <span>{detail.description}</span>}
-        </div>
-        <span className="pattern-example-n">{stat.count}×</span>
-      </div>
-      <Instances stat={stat} />
-      <Observation stat={stat} />
     </div>
   );
 }
@@ -172,40 +134,20 @@ function Instances({ stat }: { stat: PatternStat }) {
                 .filter(Boolean)
                 .join(" · ")}
             </span>
+            {/* What the moment turned out to be about sits under the quote it
+                came from, so the insight lands in place rather than in a
+                separate summary further down the page. */}
+            {it.revealed && (
+              <p className="instance-revealed">
+                <i aria-hidden="true">→</i>
+                {it.revealed}
+              </p>
+            )}
           </div>
         </div>
       ))}
     </div>
   );
-}
-
-/**
- * The recognition itself: what falls out of reading the occurrences side by
- * side. Stated as fact about the record, never as a verdict — a reader has
- * to be able to disagree with it.
- */
-function Observation({ stat }: { stat: PatternStat }) {
-  const counts = new Map<string, number>();
-  for (const it of stat.instances) {
-    for (const a of it.activities) counts.set(a, (counts.get(a) ?? 0) + 1);
-  }
-  const [topActivity, topCount] = [...counts.entries()].sort(
-    (a, b) => b[1] - a[1],
-  )[0] ?? [null, 0];
-
-  const lines: string[] = [];
-  if (topActivity && topCount > 1 && topCount >= stat.count / 2) {
-    lines.push(
-      `${topCount} of the ${stat.count} were about ${activityLabel(topActivity).toLowerCase()}.`,
-    );
-  }
-  const spread = new Set(stat.instances.map((i) => i.tone));
-  if (spread.size > 1) {
-    lines.push("It has turned up on hard days and easier ones both.");
-  }
-  if (!lines.length) return null;
-
-  return <p className={`observation tone-rail-${stat.tone}`}>{lines.join(" ")}</p>;
 }
 
 function PatternDetail({
@@ -229,7 +171,7 @@ function PatternDetail({
   return (
     <div className="reading-page">
       <button type="button" className="back-link" onClick={onBack}>
-        ‹ All patterns
+        ‹ Patterns
       </button>
 
       <header className="page-head">
@@ -292,13 +234,6 @@ function PatternDetail({
           </div>
         </section>
       )}
-
-      <Observation stat={stat} />
-
-      <p className="reading-foot">
-        Taken from your check-ins as written. The dates are when you logged
-        them, not when they happened.
-      </p>
     </div>
   );
 }
