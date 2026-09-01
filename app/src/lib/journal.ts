@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { patternTone, type PatternTone } from "./patterns";
+import { quadrantFor, type QuadrantId } from "./emotions";
 
 export interface JournalEntry {
   id: string;
@@ -217,4 +218,27 @@ export function summarizeCheckIns(entries: JournalEntry[]): CheckInSummary {
     if (x < 0) cool += 1;
   }
   return { total: entries.length, cool, warm: entries.length - cool, quadrants };
+}
+
+/**
+ * Which quadrant a pattern mostly shows up in, across the entries that carry
+ * it. Patterns have no colour of their own — "labeling yourself" is not
+ * inherently a sad thing or an anxious thing — so the spec colours each by
+ * where it actually occurs for this person. Null when nothing has a point.
+ */
+export function dominantQuadrant(
+  stat: PatternStat,
+  byId: Map<string, JournalEntry>,
+): QuadrantId | null {
+  const counts = new Map<QuadrantId, number>();
+  for (const inst of stat.instances) {
+    const entry = byId.get(inst.entryId);
+    if (!entry || entry.point_x == null || entry.point_y == null) continue;
+    const q = quadrantFor(pointOf(entry));
+    counts.set(q, (counts.get(q) ?? 0) + 1);
+  }
+  let best: QuadrantId | null = null;
+  let max = 0;
+  for (const [q, n] of counts) if (n > max) [best, max] = [q, n];
+  return best;
 }

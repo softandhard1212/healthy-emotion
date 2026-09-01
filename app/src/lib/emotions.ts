@@ -211,12 +211,11 @@ export const ACTIVITIES: Activity[] = [
   { id: "health", label: "Health", icon: "Heart" },
   { id: "family", label: "Family", icon: "Home" },
   { id: "money", label: "Money", icon: "Wallet" },
-  { id: "study", label: "Study", icon: "BookOpen" },
   { id: "exercise", label: "Exercise", icon: "Activity" },
-  { id: "food", label: "Food", icon: "Utensils" },
+  { id: "travel", label: "Travel", icon: "Plane" },
+  { id: "creativity", label: "Creativity", icon: "Palette" },
   { id: "alone", label: "Alone time", icon: "Moon" },
-  { id: "outdoors", label: "Outdoors", icon: "Trees" },
-  { id: "news", label: "News", icon: "Newspaper" },
+  { id: "food", label: "Food", icon: "Utensils" },
 ];
 
 /** An activity id back to its label; falls back to the raw id if unknown. */

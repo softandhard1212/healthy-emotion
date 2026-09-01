@@ -24,8 +24,10 @@ function useAuthRedirect(ready: boolean) {
 
   useEffect(() => {
     if (!ready || loading) return;
-    const inTabs = segments[0] === "(tabs)";
-    if (!session && inTabs) router.replace("/login");
+    const inTabs = segments[0] === "(tabs)" || segments[0] === "check-in";
+    // Signed out and inside the app: back to the front door. The Hello,
+    // Onboarding and Sign-in screens are all fine to stay on while signed out.
+    if (!session && inTabs) router.replace("/hello");
     else if (session && !inTabs) router.replace("/");
   }, [ready, loading, session, segments, router]);
 }
@@ -53,6 +55,8 @@ function Root() {
       }}
     >
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="hello" options={{ animation: "fade" }} />
+      <Stack.Screen name="onboarding" options={{ animation: "fade" }} />
       <Stack.Screen name="login" />
       <Stack.Screen name="check-in" options={{ presentation: "modal" }} />
     </Stack>

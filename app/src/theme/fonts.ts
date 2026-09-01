@@ -26,6 +26,7 @@ import Inter_500Medium from "@expo-google-fonts/inter/500Medium/Inter_500Medium.
 import Inter_600SemiBold from "@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf";
 import GeistMono_400Regular from "@expo-google-fonts/geist-mono/400Regular/GeistMono_400Regular.ttf";
 import GeistMono_700Bold from "@expo-google-fonts/geist-mono/700Bold/GeistMono_700Bold.ttf";
+import Caveat_400Regular from "@expo-google-fonts/caveat/400Regular/Caveat_400Regular.ttf";
 
 /**
  * False until every face is ready. Hold the splash screen on it — rendering
@@ -45,6 +46,7 @@ export function useAppFonts(): boolean {
     Inter_600SemiBold,
     GeistMono_400Regular,
     GeistMono_700Bold,
+    Caveat_400Regular,
   });
   return loaded;
 }

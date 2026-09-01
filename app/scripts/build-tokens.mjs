@@ -151,12 +151,9 @@ const out = {
   color: { primitives: collect(tokens.color.primitives), semantic: collect(tokens.color.semantic) },
   spacing: collect(tokens.spacing, (v) => px(resolve(v))),
   radius: collect(tokens.radius, (v) => px(resolve(v))),
-  typography: {
-    heading: collect(tokens.typography.heading, textStyle),
-    body: collect(tokens.typography.body, textStyle),
-    ui: collect(tokens.typography.ui, textStyle),
-    mono: collect(tokens.typography.mono, textStyle),
-  },
+  typography: Object.fromEntries(
+    Object.entries(tokens.typography).map(([group, styles]) => [group, collect(styles, textStyle)]),
+  ),
   bubbleCeiling: bubbleCeilings(),
   gradients: {
     "emotion-card": collect(tokens.gradients["emotion-card"], gradient),

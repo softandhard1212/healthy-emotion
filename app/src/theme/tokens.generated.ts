@@ -267,6 +267,28 @@ export const tokens = {
         "fontSize": 12,
         "lineHeight": 18
       }
+    },
+    "brand": {
+      "wordmark": {
+        "fontFamily": "Caveat_400Regular",
+        "fontSize": 140,
+        "lineHeight": 180
+      },
+      "hero": {
+        "fontFamily": "Nunito_700Bold",
+        "fontSize": 38,
+        "lineHeight": 46
+      },
+      "hero-serif": {
+        "fontFamily": "Lora_700Bold",
+        "fontSize": 32,
+        "lineHeight": 41
+      },
+      "mood-title": {
+        "fontFamily": "Lora_700Bold",
+        "fontSize": 28,
+        "lineHeight": 36
+      }
     }
   },
   "bubbleCeiling": {
