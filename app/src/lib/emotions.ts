@@ -240,6 +240,23 @@ export const ACTIVITIES: Activity[] = [
   { id: "news", label: "News", icon: "Newspaper" },
 ];
 
+/** An activity id back to its label; falls back to the raw id if unknown. */
+export function activityLabel(id: string): string {
+  return ACTIVITIES.find((a) => a.id === id)?.label ?? id;
+}
+
+/**
+ * Where a point sits in the field, as fractions of width and height with the
+ * origin at the top left — x runs unpleasant to pleasant, y runs high energy
+ * to low, matching how the circumplex is drawn.
+ *
+ * Returned normalised rather than in pixels so the same reading drives a
+ * plot at any size: multiply by the plot's measured width and height.
+ */
+export function plotPosition({ x, y }: MoodPoint): { fx: number; fy: number } {
+  return { fx: (x + 10) / 20, fy: (10 - y) / 20 };
+}
+
 export interface MoodLogDraft {
   point: MoodPoint;
   quadrant: QuadrantId;

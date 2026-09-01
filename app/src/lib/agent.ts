@@ -6,6 +6,17 @@ export interface AgentMessage {
   tool_calls?: { name: string; args: Record<string, unknown> }[];
 }
 
+/**
+ * Whether a message from the run belongs on screen. Tool calls and their
+ * results are part of how the agent works, not part of the conversation, and
+ * an assistant turn that only made a tool call has no text to show.
+ */
+export function isVisible(m: AgentMessage): boolean {
+  if (m.type === "human") return true;
+  if (m.type === "ai") return m.content.trim().length > 0;
+  return false;
+}
+
 function authHeaders(accessToken: string): HeadersInit {
   return {
     Authorization: `Bearer ${accessToken}`,
