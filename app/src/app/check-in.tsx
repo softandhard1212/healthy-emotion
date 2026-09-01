@@ -48,8 +48,10 @@ export default function CheckIn() {
     setLastPicked((prev) => (prev === word && selected.includes(word) ? null : word));
   }
 
+  // `still`: the design animates the blooms on nearly every screen, but not on
+  // the check-in ones, where someone is reading and choosing.
   return (
-    <ScreenBackground>
+    <ScreenBackground still>
       <SafeAreaView style={styles.safe}>
         <View style={styles.header}>
           <StepDots active={1} />
