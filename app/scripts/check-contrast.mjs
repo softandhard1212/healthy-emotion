@@ -17,6 +17,12 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const tokens = JSON.parse(readFileSync(join(here, "../src/theme/tokens.json"), "utf8"));
+// The ceilings the token build derived, so the bubble check uses the real cap.
+const generated = JSON.parse(
+  readFileSync(join(here, "../src/theme/tokens.generated.ts"), "utf8")
+    .replace(/^[\s\S]*?export const tokens = /, "")
+    .replace(/ as const;\s*$/, ""),
+);
 
 const AA_NORMAL = 4.5;
 
@@ -55,6 +61,34 @@ for (const [quadrant, token] of Object.entries(tokens.gradients["emotion-card"])
     `  ${quadrant.padEnd(16)} ink ${ink}  worst ${worst.toFixed(2)}:1 ` +
       `at ${(at * 100).toFixed(0)}% of ramp  ${ok ? "PASS" : "FAIL"}`,
   );
+}
+
+console.log("\ntext colour on the light surfaces it is specified for:");
+const surfaces = (quadrant, mood) => {
+  const tint = tokens.gradients["pattern-card"][quadrant].$value;
+  return [
+    ["cream", tokens.color.primitives.neutral.cream.$value],
+    ["white", tokens.color.primitives.neutral.white.$value],
+    // The lavender tint is the one translucent card colour; over cream it
+    // resolves to about this, which is what text actually sits on.
+    ["card tint", tint.startsWith("rgba") ? "#E0DBF5" : tint],
+    ["light", mood.light.$value],
+    // The strongest bubble the ramp can produce for this quadrant.
+    ["bubble max", mix(
+      tokens.color.primitives.neutral["cream-light"].$value,
+      mood.bg.$value,
+      generated.bubbleCeiling[quadrant],
+    )],
+  ];
+};
+for (const [quadrant, mood] of Object.entries(tokens.color.primitives.mood)) {
+  const text = mood.text.$value;
+  const cells = surfaces(quadrant, mood).map(([name, bg]) => {
+    const ratio = contrast(text, bg);
+    if (ratio < AA_NORMAL) failures.push({ quadrant, where: name, worst: ratio });
+    return `${name} ${ratio.toFixed(2)}${ratio >= AA_NORMAL ? "" : " FAIL"}`;
+  });
+  console.log(`  ${quadrant.padEnd(16)} ${text}  ${cells.join("  ")}`);
 }
 
 if (failures.length) {

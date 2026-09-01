@@ -79,13 +79,25 @@ function mix(from: string, to: string, amount: number): string {
 }
 
 /**
+ * The floor of the bubble ramp — the palest a bubble gets, for a word sitting
+ * near neutral. Below this the fill reads as no colour at all.
+ */
+const BUBBLE_FLOOR = 0.28;
+
+/**
  * The fill for a word's bubble in the check-in field.
  *
  * Shaded by how far the word sits from neutral, so "irritated" and "angry"
  * read as one family at two strengths rather than two equal chips. The ramp
  * runs from the pale background toward the quadrant's own colour, which is
- * what makes the whole field read as a gradient across the circumplex instead
- * of four flat boxes.
+ * what makes the field read as a gradient across the circumplex instead of
+ * four flat boxes.
+ *
+ * The top of the ramp is `bubbleCeiling`, derived in the token build from the
+ * point where the quadrant's text colour would stop clearing WCAG AA on its
+ * own fill. So the ramp is as expressive as each quadrant can afford and no
+ * more — the warm quadrants stop around half strength, the cool ones can run
+ * all the way to their base colour.
  *
  * This lived in `lib/emotions.ts` with its own hardcoded pastels until the
  * token file existed. It belongs here now: colour comes from tokens, and
@@ -93,7 +105,8 @@ function mix(from: string, to: string, amount: number): string {
  */
 export function bubbleFill(emotion: Emotion): string {
   const reach = Math.min(1, Math.hypot(emotion.x, emotion.y) / 11);
-  const quadrant = quadrantForPoint(emotion.x, emotion.y);
-  const tint = tokens.color.primitives.mood[TOKEN_QUADRANT[quadrant]].bg;
-  return mix(tokens.color.primitives.neutral["cream-light"], tint, 0.28 + reach * 0.62);
+  const key = TOKEN_QUADRANT[quadrantForPoint(emotion.x, emotion.y)];
+  const ceiling = Math.max(BUBBLE_FLOOR, tokens.bubbleCeiling[key]);
+  const strength = BUBBLE_FLOOR + reach * (ceiling - BUBBLE_FLOOR);
+  return mix(tokens.color.primitives.neutral["cream-light"], tokens.color.primitives.mood[key].bg, strength);
 }

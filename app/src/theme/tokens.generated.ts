@@ -32,7 +32,7 @@ export const tokens = {
           "soft": "#F5C3B5"
         },
         "high-pleasant": {
-          "text": "#6B440C",
+          "text": "#84540F",
           "ink": "#6B440C",
           "bg": "#FFB07C",
           "light": "#FFE7D1",
@@ -87,7 +87,7 @@ export const tokens = {
         "quadrant-low-pleasant": "#C7DFCF",
         "quadrant-low-unpleasant": "#AFCFE8",
         "text-high-unpleasant": "#8D3823",
-        "text-high-pleasant": "#6B440C",
+        "text-high-pleasant": "#84540F",
         "text-low-pleasant": "#1C5C4A",
         "text-low-unpleasant": "#3B3E80",
         "ink-high-unpleasant": "#5C1A0E",
@@ -268,6 +268,12 @@ export const tokens = {
         "lineHeight": 18
       }
     }
+  },
+  "bubbleCeiling": {
+    "high-unpleasant": 0.53,
+    "high-pleasant": 0.57,
+    "low-pleasant": 1,
+    "low-unpleasant": 1
   },
   "gradients": {
     "emotion-card": {

@@ -98,6 +98,55 @@ function gradient(value) {
   };
 }
 
+
+/**
+ * The strongest bubble fill each quadrant can take while its own text colour
+ * still clears WCAG AA on it.
+ *
+ * The check-in shades a word's bubble by how far it sits from neutral, so
+ * "angry" reads stronger than "irritated". How far that ramp may go is not a
+ * free choice: push it and the label stops being readable. Rather than pick a
+ * constant and hope, the ceiling is derived here from the tokens themselves,
+ * so changing a quadrant's `bg` or `text` moves the ceiling with it and the
+ * ramp can never outrun legibility.
+ *
+ * Warm quadrants cap lower than cool ones because their backgrounds are
+ * lighter, which leaves less room under a mid-dark text colour.
+ */
+const AA_NORMAL = 4.5;
+const srgb = (v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+const luminance = (hex) => {
+  const [r, g, b] = [1, 3, 5].map((i) => srgb(parseInt(hex.slice(i, i + 2), 16) / 255));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+const blend = (a, b, t) =>
+  "#" +
+  [0, 1, 2]
+    .map((i) => {
+      const from = parseInt(a.slice(1 + i * 2, 3 + i * 2), 16);
+      const to = parseInt(b.slice(1 + i * 2, 3 + i * 2), 16);
+      return Math.round(from * (1 - t) + to * t).toString(16).padStart(2, "0");
+    })
+    .join("");
+
+function bubbleCeilings() {
+  const base = tokens.color.primitives.neutral["cream-light"].$value;
+  const out = {};
+  for (const [quadrant, mood] of Object.entries(tokens.color.primitives.mood)) {
+    let max = 0;
+    for (let t = 0; t <= 1.0001; t += 0.01) {
+      if (contrast(mood.text.$value, blend(base, mood.bg.$value, t)) >= AA_NORMAL) max = t;
+      else break;
+    }
+    out[quadrant] = Math.round(max * 100) / 100;
+  }
+  return out;
+}
+
 const out = {
   color: { primitives: collect(tokens.color.primitives), semantic: collect(tokens.color.semantic) },
   spacing: collect(tokens.spacing, (v) => px(resolve(v))),
@@ -108,6 +157,7 @@ const out = {
     ui: collect(tokens.typography.ui, textStyle),
     mono: collect(tokens.typography.mono, textStyle),
   },
+  bubbleCeiling: bubbleCeilings(),
   gradients: {
     "emotion-card": collect(tokens.gradients["emotion-card"], gradient),
     "pattern-card": collect(tokens.gradients["pattern-card"], resolve),
@@ -124,6 +174,7 @@ writeFileSync(
   banner + "export const tokens = " + JSON.stringify(out, null, 2) + " as const;\n",
 );
 
+console.log("  bubble ceilings:", JSON.stringify(out.bubbleCeiling));
 const count = (o) => JSON.stringify(o).match(/#[0-9a-fA-F]{3,8}|rgba\(/g)?.length ?? 0;
 console.log(`Generated tokens.generated.ts — ${count(out)} color values, ` +
   `${Object.keys(out.spacing).length} spacing steps, ${Object.keys(out.radius).length} radii, ` +
