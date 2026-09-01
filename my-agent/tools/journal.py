@@ -86,6 +86,7 @@ def log_emotion_entry(
     affirmation: str,
     automatic_thought: str = "",
     reframe: str = "",
+    people: str = "",
     *,
     runtime: ToolRuntime,
 ) -> str:
@@ -101,6 +102,7 @@ def log_emotion_entry(
         affirmation: A short affirmation in the user's own first-person voice, written to answer this specific thought (not a generic slogan). One or two sentences, believable rather than relentlessly positive.
         automatic_thought: The specific automatic thought identified, in the user's own words as far as possible. Leave blank if the conversation didn't surface one (e.g. a grounding-only exchange).
         reframe: The reframed version of that thought, if one emerged. Leave blank if there wasn't a clean reframe.
+        people: Comma-separated names of who the feeling or the thought was about, exactly as the user names them ("Mom", "Alex", "Dr. Reyes", "my manager"). Use "Self" when it was about the user themselves — that is common and worth recording. Reuse the spelling from earlier entries if you have seen the person before. Empty string if no one came up.
     """
     user_id = _caller_id(runtime)
     if user_id is None:
@@ -144,6 +146,7 @@ def log_emotion_entry(
         "reframe": reframe or None,
         "thinking_patterns": patterns,
         "affirmation": affirmation.strip(),
+        "people": [n.strip() for n in people.split(",") if n.strip()],
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     resp = httpx.post(

@@ -15,6 +15,7 @@
  */
 import { useFonts } from "expo-font";
 
+import Nunito_400Regular from "@expo-google-fonts/nunito/400Regular/Nunito_400Regular.ttf";
 import Nunito_600SemiBold from "@expo-google-fonts/nunito/600SemiBold/Nunito_600SemiBold.ttf";
 import Nunito_700Bold from "@expo-google-fonts/nunito/700Bold/Nunito_700Bold.ttf";
 import Nunito_800ExtraBold from "@expo-google-fonts/nunito/800ExtraBold/Nunito_800ExtraBold.ttf";
@@ -35,6 +36,7 @@ import Caveat_400Regular from "@expo-google-fonts/caveat/400Regular/Caveat_400Re
  */
 export function useAppFonts(): boolean {
   const [loaded] = useFonts({
+    Nunito_400Regular,
     Nunito_600SemiBold,
     Nunito_700Bold,
     Nunito_800ExtraBold,

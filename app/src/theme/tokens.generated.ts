@@ -96,7 +96,7 @@ export const tokens = {
         "ink-low-unpleasant": "#3B3E80"
       },
       "chat": {
-        "user-bubble": "#FF5B44",
+        "user-bubble": "#C9C2F3",
         "ai-bubble": "#FFFFFF",
         "user-text": "#352840",
         "ai-text": "#352840"
@@ -288,6 +288,46 @@ export const tokens = {
         "fontFamily": "Lora_700Bold",
         "fontSize": 28,
         "lineHeight": 36
+      },
+      "card-title": {
+        "fontFamily": "Nunito_800ExtraBold",
+        "fontSize": 18,
+        "lineHeight": 24
+      },
+      "card-body": {
+        "fontFamily": "Nunito_400Regular",
+        "fontSize": 14,
+        "lineHeight": 21
+      },
+      "card-meta": {
+        "fontFamily": "Nunito_600SemiBold",
+        "fontSize": 13,
+        "lineHeight": 18
+      },
+      "card-meta-bold": {
+        "fontFamily": "Nunito_700Bold",
+        "fontSize": 13,
+        "lineHeight": 18
+      },
+      "person-count": {
+        "fontFamily": "Nunito_600SemiBold",
+        "fontSize": 12,
+        "lineHeight": 16
+      },
+      "initial-lg": {
+        "fontFamily": "Nunito_800ExtraBold",
+        "fontSize": 44,
+        "lineHeight": 52
+      },
+      "initial-md": {
+        "fontFamily": "Nunito_800ExtraBold",
+        "fontSize": 32,
+        "lineHeight": 40
+      },
+      "initial-sm": {
+        "fontFamily": "Nunito_800ExtraBold",
+        "fontSize": 26,
+        "lineHeight": 32
       }
     }
   },

@@ -211,6 +211,10 @@ out today."
 Use `log_emotion_entry` once per conversation, as part of closing — not
 mid-conversation, and not more than once per check-in. Capture:
 
+- **who** it was about (`people`) — the names as the user says them, and
+  "Self" when the thought was about themselves. This is what lets the
+  Patterns screen show who keeps turning up in someone's mind. Reuse the
+  spelling from earlier entries so one person stays one person.
 - the **emotion** (from the opening question, refined by the story if it
   turned out to be more specific or different than the first word used)
 - an **intensity** from 0–10 (ask directly if it isn't already clear from

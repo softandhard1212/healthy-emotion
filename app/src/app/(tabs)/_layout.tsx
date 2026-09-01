@@ -29,7 +29,7 @@ const ICON_SIZE = 22;
 function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, tokens.spacing["12"]) }]}>
+    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 18) }]}>
       {state.routes.map((route, index) => {
         const tab = TABS.find((t) => t.route === route.name) ?? TABS[index];
         const Icon = ICONS[tab.icon as keyof typeof ICONS];
@@ -70,13 +70,24 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
+  // Measured off the frames: 72 tall, 10 top / 18 bottom, 28 sides, top
+  // corners rounded 24, a hairline top border and a faint upward shadow.
   bar: {
     flexDirection: "row",
     justifyContent: "space-between",
     backgroundColor: tokens.color.semantic.bg.surface,
-    paddingTop: tokens.spacing["12"],
-    paddingHorizontal: tokens.spacing["40"],
+    paddingTop: tokens.spacing["10"],
+    paddingHorizontal: tokens.spacing["28"],
+    borderTopLeftRadius: tokens.radius.xl,
+    borderTopRightRadius: tokens.radius.xl,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(53, 40, 64, 0.08)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  tab: { alignItems: "center", gap: tokens.spacing["4"], minWidth: 44 },
+  tab: { alignItems: "center", gap: tokens.spacing["6"], minWidth: 44 },
   inactive: { opacity: 0.5 },
 });

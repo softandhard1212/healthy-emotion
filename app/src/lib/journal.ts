@@ -27,6 +27,8 @@ export interface JournalEntry {
   lift_patterns: string[] | null;
   /** Activity ids from `emotions.ts`, for what a check-in was about. */
   activities: string[] | null;
+  /** Who it was about, as the person names them; "Self" is a real value. */
+  people: string[] | null;
   /** Where the check-in landed on the circumplex, -10..+10. */
   point_x: number | null;
   point_y: number | null;
@@ -241,4 +243,41 @@ export function dominantQuadrant(
   let max = 0;
   for (const [q, n] of counts) if (n > max) [best, max] = [q, n];
   return best;
+}
+
+export interface PersonStat {
+  name: string;
+  count: number;
+  /** Where the entries mentioning them mostly landed; null if none has a point. */
+  quadrant: QuadrantId | null;
+}
+
+/**
+ * Who keeps turning up, ranked by mentions. Each carries the quadrant the
+ * entries naming them mostly fell in, which is what colours their bubble —
+ * a person has no colour of their own any more than a pattern does.
+ */
+export function summarizePeople(entries: JournalEntry[]): PersonStat[] {
+  const stats = new Map<string, { count: number; quads: Map<QuadrantId, number> }>();
+  for (const e of entries) {
+    for (const raw of e.people ?? []) {
+      const name = raw.trim();
+      if (!name) continue;
+      const s = stats.get(name) ?? { count: 0, quads: new Map() };
+      s.count += 1;
+      if (e.point_x != null && e.point_y != null) {
+        const q = quadrantFor(pointOf(e));
+        s.quads.set(q, (s.quads.get(q) ?? 0) + 1);
+      }
+      stats.set(name, s);
+    }
+  }
+  return [...stats.entries()]
+    .map(([name, s]) => {
+      let quadrant: QuadrantId | null = null;
+      let max = 0;
+      for (const [q, n] of s.quads) if (n > max) [quadrant, max] = [q, n];
+      return { name, count: s.count, quadrant };
+    })
+    .sort((a, b) => b.count - a.count);
 }

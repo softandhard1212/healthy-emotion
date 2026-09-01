@@ -52,6 +52,17 @@ alter table emotion_journal_entries
 -- what lets Trends plot a check-in where the person actually put it.
 alter table emotion_journal_entries
   add column if not exists activities text[] not null default '{}';
+
+-- Who was part of it, as the person names them: "Mom", "Alex", "Dr. Reyes".
+-- Free text on purpose — there is no fixed cast — but the agent is told to
+-- reuse the exact spelling it has seen before so "mom" and "Mom" do not
+-- become two people. "Self" is a real entry: many thoughts are about no one
+-- else, and the Patterns screen shows that as its own bubble.
+alter table emotion_journal_entries
+  add column if not exists people text[] not null default '{}';
+
+create index if not exists emotion_journal_entries_people_idx
+  on emotion_journal_entries using gin (people);
 alter table emotion_journal_entries
   add column if not exists point_x real;
 alter table emotion_journal_entries

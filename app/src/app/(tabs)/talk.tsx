@@ -149,7 +149,7 @@ export default function Talk() {
               blurOnSubmit
             />
             <Pressable onPress={send} disabled={sending || !input.trim()} accessibilityRole="button" style={({ pressed }) => [styles.send, (sending || !input.trim()) && styles.sendOff, pressed && { opacity: 0.85 }]}>
-              <Text variant="heading.h4">{sending ? "…" : "Send"}</Text>
+              <Text variant="body.default-bold">{sending ? "…" : "Send"}</Text>
             </Pressable>
           </View>
         </KeyboardAvoidingView>
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   error: { paddingHorizontal: tokens.spacing["16"] },
   composer: { flexDirection: "row", alignItems: "flex-end", gap: tokens.spacing["8"], paddingHorizontal: tokens.spacing["16"], paddingVertical: tokens.spacing["10"] },
   input: {
-    ...tokens.typography.ui.input,
+    ...tokens.typography.body.default,
     flex: 1,
     color: tokens.color.semantic.text.primary,
     backgroundColor: tokens.color.semantic.bg.surface,
