@@ -32,8 +32,8 @@ export const tokens = {
           "soft": "#F5C3B5"
         },
         "high-pleasant": {
-          "text": "#84540F",
-          "ink": "#84540F",
+          "text": "#6B440C",
+          "ink": "#6B440C",
           "bg": "#FFB07C",
           "light": "#FFE7D1",
           "mid": "#F9B882",
@@ -87,11 +87,11 @@ export const tokens = {
         "quadrant-low-pleasant": "#C7DFCF",
         "quadrant-low-unpleasant": "#AFCFE8",
         "text-high-unpleasant": "#8D3823",
-        "text-high-pleasant": "#84540F",
+        "text-high-pleasant": "#6B440C",
         "text-low-pleasant": "#1C5C4A",
         "text-low-unpleasant": "#3B3E80",
         "ink-high-unpleasant": "#5C1A0E",
-        "ink-high-pleasant": "#84540F",
+        "ink-high-pleasant": "#6B440C",
         "ink-low-pleasant": "#1C5C4A",
         "ink-low-unpleasant": "#3B3E80"
       },

@@ -27,10 +27,6 @@ export interface Quadrant {
   tone: "cool" | "warm";
   /** One line naming the felt state, for people who don't recognise the words. */
   hint: string;
-  /** Base pastel for the quadrant's bubbles, and its readable ink. */
-  tint: string;
-  ink: string;
-  border: string;
 }
 
 export const QUADRANTS: Record<QuadrantId, Quadrant> = {
@@ -39,36 +35,24 @@ export const QUADRANTS: Record<QuadrantId, Quadrant> = {
     tone: "cool",
     title: "High energy, unpleasant",
     hint: "Keyed up, and it doesn't feel good.",
-    tint: "#f2a894",
-    ink: "#8d3823",
-    border: "#e2a08f",
   },
   highPleasant: {
     id: "highPleasant",
     tone: "warm",
     title: "High energy, pleasant",
     hint: "Lit up, with energy behind it.",
-    tint: "#f4c877",
-    ink: "#84540f",
-    border: "#e8c98a",
   },
   lowUnpleasant: {
     id: "lowUnpleasant",
     tone: "cool",
     title: "Low energy, unpleasant",
     hint: "Heavy, flat, or worn down.",
-    tint: "#aeb3e0",
-    ink: "#3b3e80",
-    border: "#a7abdd",
   },
   lowPleasant: {
     id: "lowPleasant",
     tone: "warm",
     title: "Low energy, pleasant",
     hint: "Settled, and quiet with it.",
-    tint: "#9ccfb8",
-    ink: "#1c5c4a",
-    border: "#93c9b3",
   },
 };
 
@@ -199,24 +183,7 @@ export function describePoint({ x, y }: MoodPoint): string {
   } energy`;
 }
 
-/**
- * A bubble's fill: the quadrant's pastel, mixed toward the page's warm white
- * by how mild the word is. Gentle words sit back, strong ones come forward,
- * so the field shades continuously instead of banding into four blocks.
- */
-export function bubbleFill(emotion: Emotion): string {
-  const reach = Math.min(1, Math.hypot(emotion.x, emotion.y) / 11);
-  return mix("#faf8f5", QUADRANTS[quadrantFor(emotion)].tint, 0.28 + reach * 0.62);
-}
 
-function mix(from: string, to: string, amount: number): string {
-  const parse = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  const [r1, g1, b1] = parse(from);
-  const [r2, g2, b2] = parse(to);
-  const at = (a: number, b: number) =>
-    Math.round(a + (b - a) * amount).toString(16).padStart(2, "0");
-  return `#${at(r1, r2)}${at(g1, g2)}${at(b1, b2)}`;
-}
 
 export interface Activity {
   id: string;

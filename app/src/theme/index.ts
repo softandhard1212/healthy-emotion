@@ -6,7 +6,7 @@
  * whole app in one step.
  */
 export { tokens } from "./tokens.generated";
-export { quadrantColors, quadrantForPoint, TOKEN_QUADRANT } from "./quadrant";
+export { quadrantColors, quadrantForPoint, bubbleFill, TOKEN_QUADRANT } from "./quadrant";
 export type { QuadrantColors } from "./quadrant";
 export { useAppFonts } from "./fonts";
 

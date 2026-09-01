@@ -9,7 +9,7 @@
  * exports and `emotions.ts` keeps the ids already written to the database.
  */
 import { tokens } from "./tokens.generated";
-import type { QuadrantId } from "../lib/emotions";
+import type { Emotion, QuadrantId } from "../lib/emotions";
 
 /** camelCase (app) -> kebab-case (design tokens). */
 export const TOKEN_QUADRANT: Record<QuadrantId, keyof typeof tokens.color.primitives.mood> = {
@@ -66,4 +66,34 @@ export function quadrantColors(id: QuadrantId): QuadrantColors {
 export function quadrantForPoint(x: number, y: number): QuadrantId {
   if (y >= 0) return x >= 0 ? "highPleasant" : "highUnpleasant";
   return x >= 0 ? "lowPleasant" : "lowUnpleasant";
+}
+
+/** Linear blend between two hex colours; `amount` 0 returns `from`, 1 returns `to`. */
+function mix(from: string, to: string, amount: number): string {
+  const parse = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const [r1, g1, b1] = parse(from);
+  const [r2, g2, b2] = parse(to);
+  const at = (a: number, b: number) =>
+    Math.round(a + (b - a) * amount).toString(16).padStart(2, "0");
+  return `#${at(r1, r2)}${at(g1, g2)}${at(b1, b2)}`;
+}
+
+/**
+ * The fill for a word's bubble in the check-in field.
+ *
+ * Shaded by how far the word sits from neutral, so "irritated" and "angry"
+ * read as one family at two strengths rather than two equal chips. The ramp
+ * runs from the pale background toward the quadrant's own colour, which is
+ * what makes the whole field read as a gradient across the circumplex instead
+ * of four flat boxes.
+ *
+ * This lived in `lib/emotions.ts` with its own hardcoded pastels until the
+ * token file existed. It belongs here now: colour comes from tokens, and
+ * `emotions.ts` is left holding only the vocabulary and its coordinates.
+ */
+export function bubbleFill(emotion: Emotion): string {
+  const reach = Math.min(1, Math.hypot(emotion.x, emotion.y) / 11);
+  const quadrant = quadrantForPoint(emotion.x, emotion.y);
+  const tint = tokens.color.primitives.mood[TOKEN_QUADRANT[quadrant]].bg;
+  return mix(tokens.color.primitives.neutral["cream-light"], tint, 0.28 + reach * 0.62);
 }

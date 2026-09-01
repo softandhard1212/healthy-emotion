@@ -28,7 +28,7 @@ Each quadrant has a full color ramp — use the semantic token, not the raw hex:
 | Quadrant | Text color | Ink (on-gradient) | Background | Light | Card tint |
 |---|---|---|---|---|---|
 | `high-unpleasant` | `#8D3823` | `#5C1A0E` | `#F47C7C` | `#FFF0ED` | `#FAD6CC` |
-| `high-pleasant` | `#84540F` | `#84540F` | `#FFB07C` | `#FFE7D1` | `#FFE8C2` |
+| `high-pleasant` | `#84540F` | `#6B440C` | `#FFB07C` | `#FFE7D1` | `#FFE8C2` |
 | `low-pleasant` | `#1C5C4A` | `#1C5C4A` | `#C7DFCF` | `#B9DCCB` | `#D1EDE0` |
 | `low-unpleasant` | `#3B3E80` | `#3B3E80` | `#AFCFE8` | `#CCCFE3` | `rgba(224,219,245,0.75)` |
 
@@ -312,12 +312,12 @@ function getQuadrantColors(quadrant: MoodQuadrant) {
 
 #### Current emotion inventory (60 emotions across 4 quadrants)
 
-**High Energy Unpleasant:** Angry, Scared, Overwhelmed, Stressed, Anxious, Restless, Jealous, Frustrated, Nervous, Embarrassed, Irritated, Impatient, Resentful, Ashamed, Hurt, Insecure
+**High Energy Unpleasant:** Angry, Anxious, Disgusted, Embarrassed, Frustrated, Impatient, Irritated, Jealous, Nervous, Overwhelmed, Resentful, Restless, Scared, Stressed, Unsettled
 
-**High Energy Pleasant:** Determined, Energised, Excited, Enthusiastic, Playful, Joyful, Confident, Inspired, Proud, Hopeful, Amused, Awed
+**High Energy Pleasant:** Absorbed, Affectionate, Amused, Awed, Confident, Curious, Determined, Energised, Enthusiastic, Excited, Hopeful, Inspired, Joyful, Playful, Proud
 
-**Low Energy Pleasant:** Peaceful, Content, Relieved, Grateful, Relaxed, Calm, Comfortable, Satisfied, Secure, Tender, Loved, Serene, Accepting
+**Low Energy Pleasant:** Accepting, Calm, Content, Fine, Grateful, Loved, Peaceful, Reflective, Relieved, Rested, Safe, Satisfied, Steady, Tender, Trusting
 
-**Low Energy Unpleasant:** Grieving, Guilty, Disappointed, Lonely, Sad, Discouraged, Hopeless, Withdrawn, Bored
+**Low Energy Unpleasant:** Apathetic, Ashamed, Bored, Disappointed, Discouraged, Exhausted, Grieving, Guilty, Hopeless, Hurt, Insecure, Lonely, Numb, Sad, Withdrawn
 
 New emotions are added by classifying them into a quadrant — no new colors needed.
