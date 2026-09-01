@@ -14,16 +14,22 @@ export type TabId = "today" | "talk" | "patterns" | "journal";
 export interface Tab {
   id: TabId;
   label: string;
+  /**
+   * The route file this tab renders. Kept separate from `id` because Today is
+   * the group's index route — the tab is still "today" everywhere it is
+   * referred to, but the file has to be `index` for `/` to land on it.
+   */
+  route: string;
   /** Lucide icon name; outlined when inactive, filled when active. */
   icon: string;
 }
 
 /** Left to right, as the bar is laid out. */
 export const TABS: Tab[] = [
-  { id: "today", label: "Today", icon: "circle" },
-  { id: "talk", label: "Talk", icon: "message-circle" },
-  { id: "patterns", label: "Patterns", icon: "waves" },
-  { id: "journal", label: "Journal", icon: "book-open" },
+  { id: "today", label: "Today", route: "index", icon: "circle" },
+  { id: "talk", label: "Talk", route: "talk", icon: "message-circle" },
+  { id: "patterns", label: "Patterns", route: "patterns", icon: "waves" },
+  { id: "journal", label: "Journal", route: "journal", icon: "book-open" },
 ];
 
 /** The two views the Journal tab switches between. */
