@@ -25,6 +25,7 @@ export const tokens = {
       "mood": {
         "high-unpleasant": {
           "text": "#8D3823",
+          "ink": "#5C1A0E",
           "bg": "#F47C7C",
           "light": "#FFF0ED",
           "mid": "#F08C82",
@@ -32,6 +33,7 @@ export const tokens = {
         },
         "high-pleasant": {
           "text": "#84540F",
+          "ink": "#84540F",
           "bg": "#FFB07C",
           "light": "#FFE7D1",
           "mid": "#F9B882",
@@ -39,11 +41,13 @@ export const tokens = {
         },
         "low-pleasant": {
           "text": "#1C5C4A",
+          "ink": "#1C5C4A",
           "bg": "#C7DFCF",
           "light": "#B9DCCB"
         },
         "low-unpleasant": {
           "text": "#3B3E80",
+          "ink": "#3B3E80",
           "bg": "#AFCFE8",
           "light": "#CCCFE3"
         }
@@ -85,12 +89,16 @@ export const tokens = {
         "text-high-unpleasant": "#8D3823",
         "text-high-pleasant": "#84540F",
         "text-low-pleasant": "#1C5C4A",
-        "text-low-unpleasant": "#3B3E80"
+        "text-low-unpleasant": "#3B3E80",
+        "ink-high-unpleasant": "#5C1A0E",
+        "ink-high-pleasant": "#84540F",
+        "ink-low-pleasant": "#1C5C4A",
+        "ink-low-unpleasant": "#3B3E80"
       },
       "chat": {
         "user-bubble": "#FF5B44",
         "ai-bubble": "#FFFFFF",
-        "user-text": "#FFFFFF",
+        "user-text": "#352840",
         "ai-text": "#352840"
       }
     }
@@ -190,6 +198,23 @@ export const tokens = {
         "fontFamily": "Lora_400Regular_Italic",
         "fontSize": 15,
         "lineHeight": 24
+      },
+      "nav-label": {
+        "fontFamily": "Lora_400Regular",
+        "fontSize": 11,
+        "lineHeight": 14
+      },
+      "nav-label-active": {
+        "fontFamily": "Lora_700Bold",
+        "fontSize": 11,
+        "lineHeight": 14
+      },
+      "overline": {
+        "fontFamily": "Lora_700Bold",
+        "fontSize": 11,
+        "lineHeight": 14,
+        "letterSpacing": 1.5,
+        "textTransform": "uppercase"
       }
     },
     "ui": {

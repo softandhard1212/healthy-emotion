@@ -20,8 +20,15 @@ export const TOKEN_QUADRANT: Record<QuadrantId, keyof typeof tokens.color.primit
 };
 
 export interface QuadrantColors {
-  /** Readable ink for text on this quadrant's light surfaces. */
+  /** The quadrant's colour for text on light surfaces — cream, white, card tints. */
   text: string;
+  /**
+   * The colour for text sitting directly on this quadrant's gradient.
+   * Identical to `text` for three quadrants; darkened for high-unpleasant,
+   * where the standard text colour fails WCAG AA on the coral-to-amber ramp.
+   * Use it for anything on an emotion card, and `text` everywhere else.
+   */
+  ink: string;
   /** The quadrant's saturated base — mood bubble fills, quadrant cards. */
   bg: string;
   /** The palest step, for large washes behind content. */
@@ -42,6 +49,7 @@ export function quadrantColors(id: QuadrantId): QuadrantColors {
   const mood = tokens.color.primitives.mood[key];
   return {
     text: mood.text,
+    ink: mood.ink,
     bg: mood.bg,
     light: mood.light,
     cardTint: tokens.gradients["pattern-card"][key],

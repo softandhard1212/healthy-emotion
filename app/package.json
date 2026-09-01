@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "build:tokens": "node scripts/build-tokens.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:contrast": "node scripts/check-contrast.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/geist-mono": "^0.4.1",

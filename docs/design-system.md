@@ -1,4 +1,4 @@
-# Be - Design System Specification
+# Be — Design System Specification
 
 A wellness/mood-tracking app that helps users name feelings, talk them through, and see patterns over time.
 
@@ -14,7 +14,7 @@ A wellness/mood-tracking app that helps users name feelings, talk them through, 
 
 ### Palette Philosophy
 
-The palette is built on a plum-and-cream foundation with 4 mood quadrant color families. Every emotion in the app maps to one of 4 quadrants on a 2x2 grid:
+The palette is built on a plum-and-cream foundation with 4 mood quadrant color families. Every emotion in the app maps to one of 4 quadrants on a 2×2 grid:
 
 | | Unpleasant | Pleasant |
 |---|---|---|
@@ -25,12 +25,17 @@ The palette is built on a plum-and-cream foundation with 4 mood quadrant color f
 
 Each quadrant has a full color ramp — use the semantic token, not the raw hex:
 
-| Quadrant | Text color | Background | Light | Card tint |
-|---|---|---|---|---|
-| `high-unpleasant` | `#8D3823` | `#F47C7C` | `#FFF0ED` | `#FAD6CC` |
-| `high-pleasant` | `#84540F` | `#FFB07C` | `#FFE7D1` | `#FFE8C2` |
-| `low-pleasant` | `#1C5C4A` | `#C7DFCF` | `#B9DCCB` | `#D1EDE0` |
-| `low-unpleasant` | `#3B3E80` | `#AFCFE8` | `#CCCFE3` | `rgba(224,219,245,0.75)` |
+| Quadrant | Text color | Ink (on-gradient) | Background | Light | Card tint |
+|---|---|---|---|---|---|
+| `high-unpleasant` | `#8D3823` | `#5C1A0E` | `#F47C7C` | `#FFF0ED` | `#FAD6CC` |
+| `high-pleasant` | `#84540F` | `#84540F` | `#FFB07C` | `#FFE7D1` | `#FFE8C2` |
+| `low-pleasant` | `#1C5C4A` | `#1C5C4A` | `#C7DFCF` | `#B9DCCB` | `#D1EDE0` |
+| `low-unpleasant` | `#3B3E80` | `#3B3E80` | `#AFCFE8` | `#CCCFE3` | `rgba(224,219,245,0.75)` |
+
+> **"Ink" vs "Text" explained:**
+> - **Text** is the standard quadrant color for use on light backgrounds (cream, white, card tints).
+> - **Ink** is the WCAG AA–safe color for text placed on the quadrant's gradient background (emotion cards). For three quadrants ink = text. For `high-unpleasant` the standard text color fails AA on the coral→amber gradient, so ink is darkened to `#5C1A0E`.
+> - **Rule:** use `ink` for any text sitting directly on a gradient; use `text` everywhere else.
 
 ### How to Map New Emotions to Colors
 
@@ -56,11 +61,11 @@ Cognitive patterns (e.g. "Labeling yourself", "Jumping to the worst case") are n
 ### Core Palette
 
 - **Primary background:** `#FFF7EF` (cream)
-- **Surface/cards:** `#FFFFFF` or `rgba(255,255,255,0.5-0.65)`
+- **Surface/cards:** `#FFFFFF` or `rgba(255,255,255,0.5–0.65)`
 - **Primary text:** `#352840` (plum 900) — used for all headings and body text
 - **Secondary text:** `#725F75` (plum 700)
 - **Muted text:** `#8E9194` (plum 500)
-- **Primary CTA:** `#FF5B44` (coral) — used for Continue, Save, Send buttons
+- **Primary CTA:** `#FF5B44` (coral) — used for Continue, Save, Send buttons and user chat bubbles
 - **Accent:** `#A898F2` (lavender)
 - **Dividers/borders:** `#F0EDE8` (sand)
 
@@ -80,7 +85,7 @@ Three typeface families serve distinct roles:
 | H4 | SemiBold (600) | 15px | 22px | Small section headers |
 | H5 | SemiBold (600) | 13px | 18px | Category labels |
 
-### Lora — Body (editorial serif, warmth and trust)
+### Lora — Body & editorial (serif, warmth and trust)
 | Style | Weight | Size | Line height | Usage |
 |---|---|---|---|---|
 | Large | Regular (400) | 18px | 28px | AI conversation text, pull quotes |
@@ -90,6 +95,9 @@ Three typeface families serve distinct roles:
 | Default Bold | Bold (700) | 15px | 24px | Bold body, inline emphasis |
 | Small Bold | Bold (700) | 13px | 20px | Bold small text |
 | Italic | Italic (400) | 15px | 24px | Emotional prompts ("It is ok to feel.") |
+| Nav Label | Regular (400) | 11px | 14px | Bottom nav tab label (inactive) |
+| Nav Label Active | Bold (700) | 11px | 14px | Bottom nav tab label (active) |
+| Overline | Bold (700) | 11px | 14px | Section overlines ("PATTERNS"), letter-spacing 1.5px, uppercase |
 
 ### Inter — UI (clarity, precision, functional)
 | Style | Weight | Size | Line height | Usage |
@@ -97,9 +105,9 @@ Three typeface families serve distinct roles:
 | Label Large | SemiBold (600) | 15px | 20px | Primary labels |
 | Label Default | SemiBold (600) | 13px | 18px | Standard labels, entry counts |
 | Label Small | Medium (500) | 12px | 16px | Tab bar labels, small tags |
-| Button | SemiBold (600) | 14px | 20px | Button text (note: primary buttons use Nunito Bold 15) |
+| Button | SemiBold (600) | 14px | 20px | Generic button text (note: primary buttons use Nunito Bold 15) |
 | Caption | Medium (500) | 10.5px | 14px | Timestamps, metadata |
-| Overline | SemiBold (600) | 10.5px | 14px | Section overlines (letter-spacing: 1px, uppercase) |
+| Overline | SemiBold (600) | 10.5px | 14px | Generic UI overlines, letter-spacing 1px, uppercase (note: Section Header uses Lora Bold 11 instead) |
 | Input | Regular (400) | 16px | 22px | Text input fields |
 
 ### Geist Mono — Data accent
@@ -112,7 +120,8 @@ Three typeface families serve distinct roles:
 - **Primary buttons** (Continue, Save entry) use **Nunito Bold 15px** with dark text (`#352840`), NOT Inter
 - **Secondary buttons** (Start, Sign in) use **Lora Bold 16px** with dark text
 - **Ghost buttons** (Back) use **Nunito Bold 15px**
-- **Bottom nav labels** use **Lora Bold 11px** (active) and **Lora Regular 11px** (inactive)
+- **Bottom nav labels** use **Lora Bold 11px** (active) and **Lora Regular 11px** (inactive) — token: `body.nav-label` / `body.nav-label-active`
+- **Section overlines** (e.g. "PATTERNS") use **Lora Bold 11px**, 1.5px letter-spacing, uppercase — token: `body.overline`. This is NOT the same as `ui.overline` (Inter 10.5px / 1px tracking), which is for generic UI labels
 - All button text is dark (`#352840`), never white — even on the coral primary button
 
 ---
@@ -133,8 +142,8 @@ Built on a base-2 scale derived from actual screen measurements:
 28px — generous padding (screen edges) 
 32px — large section gaps 
 40px — major section breaks 
-48px — hero spacing 
-64px — page-level vertical rhythm
+48px — hero spacing 64px — page-level vertical rhythm
+
 
 ---
 
@@ -157,7 +166,7 @@ Built on a base-2 scale derived from actual screen measurements:
 ## Components
 
 ### Button/Primary
-- **Background:** `#F47C7C` (coral, not the darker `#FF5B44`)
+- **Background:** `#FF5B44` (coral)
 - **Text:** Nunito Bold 15px, color `#352840` (dark, not white)
 - **Radius:** 999px (full pill)
 - **Padding:** 14px vertical, 24px horizontal
@@ -181,8 +190,8 @@ Built on a base-2 scale derived from actual screen measurements:
 - **No border or background on the field itself** (underline style)
 
 ### Chat Bubble/User
-- **Background:** `#FF5B44` (coral accent)
-- **Text:** Lora Regular 15px / 22px line height, color `#352840` (dark text on coral)
+- **Background:** `#FF5B44` (coral)
+- **Text:** Lora Regular 15px / 22px line height, color `#352840` (dark text on coral — NOT white)
 - **Radius:** 16px
 - **Padding:** 12px vertical, 16px horizontal
 
@@ -199,25 +208,28 @@ Built on a base-2 scale derived from actual screen measurements:
 ### Emotion Card
 Two states: Collapsed and Expanded. 4 tone variants each (HighUn, HighPl, LowPl, LowUn).
 
+> **Accessibility note — text color on gradients:**
+> The original Figma design uses white text on all emotion card gradients. This fails WCAG AA contrast on every quadrant (ratios range from 1.39:1 to 2.62:1; AA requires 4.5:1). For production, use the quadrant's **ink** token instead of white — this yields ≥4.5:1 contrast on all quadrants. See `mood.[quadrant].ink` in tokens.json.
+
 **Collapsed (journal list view):**
-- **Size:** 342 x 134px
+- **Size:** 342 × 134px
 - **Radius:** 24px
 - **Background:** linear gradient based on mood quadrant
-- **Mood label:** Lora Bold 20px, white
-- **Context tag:** Nunito Bold 11px, white, on `rgba(255,255,255,0.3)` chip
-- **Time:** Nunito SemiBold 12px, white
+- **Mood label:** Lora Bold 20px, use quadrant `ink` color
+- **Context tag:** Nunito Bold 11px, use quadrant `ink` color, on `rgba(255,255,255,0.3)` chip
+- **Time:** Nunito SemiBold 12px, use quadrant `ink` color
 
 **Expanded (detail view):**
 - **Width:** 342px, height auto
 - **Radius:** 24px
 - **Background:** same gradient as collapsed
-- **All text is white**
+- **All text uses quadrant `ink` color**
 - **Sections (top to bottom):**
   - Header: Mood label (Lora Bold 28px) + context tag + time
   - "HOW YOU FELT": Nunito Bold 12px label, Lora Regular 16px body
   - "WHAT HAPPENED": Nunito Bold 12px label, Lora Regular 16px body
   - "THE THOUGHT": Nunito Bold 12px label, Lora Italic 15px body (quoted)
-  - Pattern chips: pill-shaped tags (Lora SemiBold 10px, white on `rgba(255,255,255,0.25)`, radius 999)
+  - Pattern chips: pill-shaped tags (Lora SemiBold 10px, ink color on `rgba(255,255,255,0.25)`, radius 999)
   - "THE NEW BELIEF" card: frosted card (`rgba(255,255,255,0.2)`, radius 16px) with Lora Regular 15px body
   - "Talk it through" link: Nunito Bold 13px
 
@@ -228,7 +240,7 @@ Two states: Collapsed and Expanded. 4 tone variants each (HighUn, HighPl, LowPl,
 - LowUn: `linear-gradient(90deg, #AFCFE8, #C9C2F3)` — sky to lavender
 
 ### Pattern Card
-- **Width:** 342-350px, height auto
+- **Width:** 342–350px, height auto
 - **Radius:** 24px
 - **Background:** solid tint based on mood quadrant
 - **Title:** Nunito ExtraBold 18px, dark text
@@ -240,14 +252,14 @@ Two states: Collapsed and Expanded. 4 tone variants each (HighUn, HighPl, LowPl,
 - **Tone variants:** HighUn (`#FAD6CC`), HighPl (`#FFE8C2`), LowPl (`#D1EDE0`), LowUn (`rgba(224,219,245,0.75)`)
 
 ### Mood Bubble
-- **Size:** 96 x 96px circle (radius 48px)
+- **Size:** 96 × 96px circle (radius 48px)
 - **Text:** Inter Medium 12px (default), Inter Bold 12px (selected)
 - **Default state:** subtle tinted fill, text in quadrant color, no stroke
 - **Selected state:** tinted fill, text in quadrant color, stroke in quadrant color
 - **Tone variants:** HighUn, HighPl, LowPl, LowUn (each with Default + Selected)
 
 ### Section Header
-- **Overline:** Lora Bold 11px, uppercase, letter-spacing 1.5px, secondary text color
+- **Overline:** Lora Bold 11px, uppercase, letter-spacing 1.5px, secondary text color — token: `body.overline`
 - **Title:** Nunito Bold 24px, primary text color
 
 ### Bottom Nav Bar
@@ -257,9 +269,9 @@ Two states: Collapsed and Expanded. 4 tone variants each (HighUn, HighPl, LowPl,
 - **Padding:** 12px top, 22px bottom (safe area), 40px horizontal
 - **Layout:** horizontal, space-between
 - **Tabs:** 4 items (Today, Talk, Patterns, Journal)
-- **Active tab:** Lora Bold 11px + filled icon
-- **Inactive tab:** Lora Regular 11px, 50% opacity + outlined icon
-- **Icon size:** 22 x 22px (vector icons, not filled circles)
+- **Active tab:** Lora Bold 11px + filled icon — token: `body.nav-label-active`
+- **Inactive tab:** Lora Regular 11px, 50% opacity + outlined icon — token: `body.nav-label`
+- **Icon size:** 22 × 22px (vector icons, not filled circles)
 - **Icons:** circle (Today), message-circle (Talk), waves (Patterns), book-open (Journal)
 
 ---
@@ -269,7 +281,7 @@ Two states: Collapsed and Expanded. 4 tone variants each (HighUn, HighPl, LowPl,
 Most screens use a warm gradient background:
 - Base: `#FFF7EF` (cream)
 - Subtle warm gradient overlays with peach/apricot tones at top-left and bottom-right
-- Cards float on `rgba(255, 255, 255, 0.5-0.65)` surfaces
+- Cards float on `rgba(255, 255, 255, 0.5–0.65)` surfaces
 
 ---
 
@@ -289,10 +301,23 @@ interface Emotion {
 // Get the color tokens for any quadrant
 function getQuadrantColors(quadrant: MoodQuadrant) {
   return {
-    text: tokens.color.primitives.mood[quadrant].text,
+    text: tokens.color.primitives.mood[quadrant].text,       // for light backgrounds
+    ink: tokens.color.primitives.mood[quadrant].ink,          // for on-gradient text (WCAG AA safe)
     bg: tokens.color.primitives.mood[quadrant].bg,
     light: tokens.color.primitives.mood[quadrant].light,
     cardTint: tokens.gradients['pattern-card'][quadrant],
     gradient: tokens.gradients['emotion-card'][quadrant],
   };
 }
+
+#### Current emotion inventory (60 emotions across 4 quadrants)
+
+**High Energy Unpleasant:** Angry, Scared, Overwhelmed, Stressed, Anxious, Restless, Jealous, Frustrated, Nervous, Embarrassed, Irritated, Impatient, Resentful, Ashamed, Hurt, Insecure
+
+**High Energy Pleasant:** Determined, Energised, Excited, Enthusiastic, Playful, Joyful, Confident, Inspired, Proud, Hopeful, Amused, Awed
+
+**Low Energy Pleasant:** Peaceful, Content, Relieved, Grateful, Relaxed, Calm, Comfortable, Satisfied, Secure, Tender, Loved, Serene, Accepting
+
+**Low Energy Unpleasant:** Grieving, Guilty, Disappointed, Lonely, Sad, Discouraged, Hopeless, Withdrawn, Bored
+
+New emotions are added by classifying them into a quadrant — no new colors needed.
