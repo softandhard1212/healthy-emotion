@@ -117,7 +117,7 @@ export default function Login() {
                 inputMode="numeric"
                 textContentType="oneTimeCode"
                 autoComplete="one-time-code"
-                maxLength={6}
+                maxLength={10}
                 placeholder="123456"
                 placeholderTextColor={tokens.color.semantic.text.tertiary}
                 style={[styles.input, styles.codeInput]}
@@ -126,6 +126,8 @@ export default function Login() {
               />
               <View style={styles.divider} />
               {error ? <Problem message={error} /> : null}
+              {/* Only a floor: Supabase's OTP length is configurable per-project
+                  (Auth > Providers > Email), so the exact length can vary. */}
               <Button
                 label={busy ? "Checking…" : "Sign in"}
                 variant="secondary"
