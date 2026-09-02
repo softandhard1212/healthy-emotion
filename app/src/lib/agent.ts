@@ -15,6 +15,21 @@ export interface AgentMessage {
 export const CONTEXT_PREFIX = "[[be-context]] ";
 
 /**
+ * An agent request that failed, carrying the HTTP status so a caller can
+ * tell "this thread id doesn't exist on this server" (404 — expected after
+ * `mda dev` restarts, since its local store is in-memory and every restart
+ * starts empty) apart from anything else worth surfacing as-is.
+ */
+export class AgentError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+  }
+}
+
+/**
  * Whether a message from the run belongs on screen. Tool calls and their
  * results are part of how the agent works, not part of the conversation, and
  * an assistant turn that only made a tool call has no text to show.
@@ -55,7 +70,7 @@ export async function fetchThreadHistory(
     body: JSON.stringify({ limit: 1 }),
   });
   if (!res.ok) {
-    throw new Error(`Failed to load thread history (${res.status})`);
+    throw new AgentError(`Failed to load thread history (${res.status})`, res.status);
   }
   const data = await res.json();
   // Empty array for a brand-new thread with no runs yet.
@@ -76,7 +91,7 @@ export async function sendMessage(
     }),
   });
   if (!res.ok) {
-    throw new Error(`Agent request failed (${res.status})`);
+    throw new AgentError(`Agent request failed (${res.status})`, res.status);
   }
   const data = await res.json();
   if (data.__error__) {

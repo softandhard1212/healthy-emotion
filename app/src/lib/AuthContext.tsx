@@ -7,6 +7,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
+import { clearThread } from "./thread";
 
 interface AuthContextValue {
   session: Session | null;
@@ -30,6 +31,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, newSession) => {
         setSession(newSession);
+        // A signed-out device's thread belongs to whoever signs in next.
+        if (!newSession) clearThread();
       },
     );
     return () => listener.subscription.unsubscribe();

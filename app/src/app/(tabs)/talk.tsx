@@ -8,8 +8,8 @@ import { ChatBubble } from "../../components/ChatBubble";
 import { Text } from "../../theme/Text";
 import { tokens } from "../../theme";
 import { useAuth } from "../../lib/AuthContext";
-import { fetchThreadHistory, isVisible, sendMessage, type AgentMessage } from "../../lib/agent";
-import { ensureThread, getThreadId } from "../../lib/thread";
+import { AgentError, createThread, fetchThreadHistory, isVisible, sendMessage, type AgentMessage } from "../../lib/agent";
+import { clearThread, ensureThread, getThreadId } from "../../lib/thread";
 import { entryToMessage, fetchEntry, fetchJournalEntries, setAffirmationSaved } from "../../lib/journal";
 
 /** The affirmation the agent wrote when it logged an entry, if this turn logged one. */
@@ -26,7 +26,28 @@ function affirmationIn(m: AgentMessage): string | null {
  * call and shown as the "one line to keep" card, with a Keep button. Keeping
  * marks `affirmation_saved` on the entry, which is the single write the
  * client is allowed — the database trigger refuses anything else.
+ *
+ * A thread id can outlive the thread it names — most commonly in local dev,
+ * where `mda dev`'s in-memory store empties on every restart, but the same
+ * thing happens to a real deployment if it's ever recreated. Rather than
+ * surface that as a dead end, `sendMessage`'s 404 clears the stale id and
+ * starts a fresh thread transparently — the alternative is a conversation
+ * that errors forever until someone thinks to sign out and back in.
  */
+async function sendResilient(
+  accessToken: string,
+  threadId: string,
+  message: string,
+): Promise<{ threadId: string; messages: AgentMessage[] }> {
+  try {
+    return { threadId, messages: await sendMessage(accessToken, threadId, message) };
+  } catch (e) {
+    if (!(e instanceof AgentError) || e.status !== 404) throw e;
+    await clearThread();
+    const freshId = await createThread(accessToken);
+    return { threadId: freshId, messages: await sendMessage(accessToken, freshId, message) };
+  }
+}
 export default function Talk() {
   const { session } = useAuth();
   const { entryId: entryIdParam } = useLocalSearchParams<{ entryId?: string }>();
@@ -48,7 +69,7 @@ export default function Talk() {
       let live = true;
       (async () => {
         if (!session) return;
-        const id = await getThreadId();
+        let id = await getThreadId();
         if (!live) return;
         setThreadId(id);
         let history: AgentMessage[] = [];
@@ -57,8 +78,17 @@ export default function Talk() {
             history = await fetchThreadHistory(session.access_token, id);
             if (live) setMessages(history);
           } catch (e) {
-            if (live) setError(e instanceof Error ? e.message : "Could not load the conversation.");
-            return;
+            if (e instanceof AgentError && e.status === 404) {
+              // This id is gone server-side — most likely `mda dev` restarted
+              // since it was created. Forget it and carry on as a fresh
+              // thread rather than erroring on every visit to this screen.
+              await clearThread();
+              id = null;
+              if (live) setThreadId(null);
+            } else {
+              if (live) setError(e instanceof Error ? e.message : "Could not load the conversation.");
+              return;
+            }
           }
         }
 
@@ -74,9 +104,15 @@ export default function Talk() {
           if (!entry || !live) return;
           setSending(true);
           const threadIdForSend = id ?? (await ensureThread(session.access_token));
-          if (live) setThreadId(threadIdForSend);
-          const result = await sendMessage(session.access_token, threadIdForSend, entryToMessage(entry));
-          if (live) setMessages(result);
+          const { threadId: finalId, messages: result } = await sendResilient(
+            session.access_token,
+            threadIdForSend,
+            entryToMessage(entry),
+          );
+          if (live) {
+            setThreadId(finalId);
+            setMessages(result);
+          }
         } catch (e) {
           if (live) setError(e instanceof Error ? e.message : "Could not start that conversation.");
         } finally {
@@ -98,8 +134,9 @@ export default function Talk() {
     setMessages((prev) => [...prev, { type: "human", content: text }]);
     try {
       const id = threadId ?? (await ensureThread(session.access_token));
-      setThreadId(id);
-      setMessages(await sendMessage(session.access_token, id, text));
+      const { threadId: finalId, messages: result } = await sendResilient(session.access_token, id, text);
+      setThreadId(finalId);
+      setMessages(result);
     } catch (e) {
       setError(e instanceof Error ? e.message : "That didn't send. Try again?");
     } finally {
