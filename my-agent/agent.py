@@ -22,4 +22,14 @@ agent = define_deep_agent(
     name="my-agent",
     model=model,
     tools=[log_emotion_entry, get_emotion_progress],
+    # The default middleware stack always includes Anthropic's prompt-caching
+    # middleware, regardless of provider. Against this OpenAI-compatible
+    # model it builds a header containing raw prose (looks like the system
+    # prompt) instead of an Anthropic cache-control header, which crashes
+    # with a UnicodeEncodeError the moment that prose has an em dash or
+    # curly quote in it — both of which instructions.md is full of. This
+    # agent has no need for prompt caching, filesystem, or subagent
+    # middleware (no sandbox, no delegated subagents), so the whole default
+    # stack is replaced rather than patched around.
+    middleware=[],
 )
