@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 import { AuthProvider, useAuth } from "../lib/AuthContext";
+import { useAuthLink } from "../lib/authLink";
 import { useAppFonts, tokens } from "../theme";
 
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -33,6 +34,8 @@ function useAuthRedirect(ready: boolean) {
 }
 
 function Root() {
+  // Catches the magic link coming back from the browser.
+  useAuthLink();
   const fontsLoaded = useAppFonts();
   const { loading } = useAuth();
   const ready = fontsLoaded && !loading;

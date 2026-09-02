@@ -6,6 +6,7 @@ import { Button } from "../components/Button";
 import { Text } from "../theme/Text";
 import { tokens } from "../theme";
 import { supabase } from "../lib/supabase";
+import { authRedirectUrl } from "../lib/authLink";
 
 /**
  * Sign in with a six-digit code, not a magic link.
@@ -32,9 +33,13 @@ export default function Login() {
     setError(null);
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      // The journal is per signed-in user, so a first sign-in has to be able
-      // to create the account rather than bouncing someone who has none.
-      options: { shouldCreateUser: true },
+      options: {
+        // The journal is per signed-in user, so a first sign-in has to be able
+        // to create the account rather than bouncing someone who has none.
+        shouldCreateUser: true,
+        // Sends the link back into the app rather than to a web page.
+        emailRedirectTo: authRedirectUrl(),
+      },
     });
     setBusy(false);
     if (error) setError(error.message);
@@ -66,7 +71,7 @@ export default function Login() {
             <Text variant="body.large" tone="secondary">
               {stage === "email"
                 ? "Your journal is private to you. Sign in with your email."
-                : `We sent a six-digit code to ${email.trim()}.`}
+                : `Sent to ${email.trim()}. Tap the link in it — or type the code, if your email shows one.`}
             </Text>
           </View>
 
@@ -92,7 +97,7 @@ export default function Login() {
               <View style={styles.divider} />
               {error ? <Problem message={error} /> : null}
               <Button
-                label={busy ? "Sending…" : "Send me a code"}
+                label={busy ? "Sending…" : "Send me a link"}
                 variant="secondary"
                 onPress={sendCode}
                 disabled={busy || !email.includes("@")}
