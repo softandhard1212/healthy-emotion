@@ -8,20 +8,20 @@ import { StepDots } from "../../components/StepDots";
 import { Button } from "../../components/Button";
 import { Text } from "../../theme/Text";
 import { tokens } from "../../theme";
-import { ACTIVITIES, centroidOf, draftToMessage, quadrantFor } from "../../lib/emotions";
+import { ACTIVITIES, centroidOf, intensityOf, quadrantFor } from "../../lib/emotions";
 import { listWords } from "../../lib/format";
 import { useCheckIn } from "../../lib/checkin";
 import { useAuth } from "../../lib/AuthContext";
-import { ensureThread } from "../../lib/thread";
-import { sendMessage } from "../../lib/agent";
+import { createCheckIn } from "../../lib/journal";
 
 /**
- * Step 3 — what it is attached to, then hand the whole thing to the coach.
+ * Step 3 — what it is attached to, then written straight to the journal.
  *
- * Nothing is written to the journal from here. The draft becomes the opening
- * message of a conversation, and the agent logs the entry once it has heard
- * the thought behind the feeling — which is the part worth keeping, and the
- * part a form cannot ask for.
+ * This is the entry itself: it shows on Today and in the Journal as soon as
+ * it saves, with no conversation required. Talking it through is optional
+ * and happens afterward, from the card — tapping "Talk it through" there
+ * opens Talk with this entry's id, so the conversation finishes the same
+ * row rather than starting a separate one.
  */
 export default function Context() {
   const router = useRouter();
@@ -36,20 +36,26 @@ export default function Context() {
   }
 
   async function save() {
-    if (!session) return;
+    const email = session?.user.email;
+    if (!email) return;
     setBusy(true);
     setError(null);
     try {
       const point = centroidOf(draft.emotions);
       const quadrant = draft.emotions.length ? quadrantFor(point) : draft.guess;
       if (!quadrant) throw new Error("Pick at least one word first.");
-      const message = draftToMessage({ point, quadrant, emotions: draft.emotions, activities: draft.activities, note: draft.note });
-      const threadId = await ensureThread(session.access_token);
-      await sendMessage(session.access_token, threadId, message);
+      await createCheckIn({
+        userEmail: email,
+        emotion: listWords(draft.emotions.map((w) => w.toLowerCase())),
+        intensity: intensityOf(point),
+        note: draft.note.trim(),
+        activities: draft.activities,
+        point,
+      });
       reset();
-      router.replace("/talk");
+      router.replace("/");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not send that. Try again?");
+      setError(e instanceof Error ? e.message : "Could not save that. Try again?");
       setBusy(false);
     }
   }
@@ -97,7 +103,7 @@ export default function Context() {
 
           <View style={styles.actions}>
             <Button label="Back" variant="ghost" onPress={() => router.back()} disabled={busy} />
-            <Button label={busy ? "Sending…" : "Save entry"} onPress={save} disabled={busy} style={styles.save} />
+            <Button label={busy ? "Saving…" : "Save entry"} onPress={save} disabled={busy} style={styles.save} />
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>

@@ -24,7 +24,11 @@ export default function Entry() {
             <Text variant="ui.label-default">Back to calendar</Text>
           </Pressable>
           <Text variant="heading.h1">I am feeling</Text>
-          {entry ? <EmotionCard entry={entry} expanded /> : <Text tone="secondary">Loading…</Text>}
+          {entry ? (
+            <EmotionCard entry={entry} expanded onTalk={() => router.push({ pathname: "/talk", params: { entryId: entry.id } })} />
+          ) : (
+            <Text tone="secondary">Loading…</Text>
+          )}
         </ScrollView>
       </SafeAreaView>
     </ScreenBackground>

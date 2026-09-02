@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Star } from "lucide-react-native";
 import { ScreenBackground } from "../../components/ScreenBackground";
 import { ChatBubble } from "../../components/ChatBubble";
@@ -10,7 +10,7 @@ import { tokens } from "../../theme";
 import { useAuth } from "../../lib/AuthContext";
 import { fetchThreadHistory, isVisible, sendMessage, type AgentMessage } from "../../lib/agent";
 import { ensureThread, getThreadId } from "../../lib/thread";
-import { fetchJournalEntries, setAffirmationSaved } from "../../lib/journal";
+import { entryToMessage, fetchEntry, fetchJournalEntries, setAffirmationSaved } from "../../lib/journal";
 
 /** The affirmation the agent wrote when it logged an entry, if this turn logged one. */
 function affirmationIn(m: AgentMessage): string | null {
@@ -29,6 +29,8 @@ function affirmationIn(m: AgentMessage): string | null {
  */
 export default function Talk() {
   const { session } = useAuth();
+  const { entryId: entryIdParam } = useLocalSearchParams<{ entryId?: string }>();
+  const entryId = Array.isArray(entryIdParam) ? entryIdParam[0] : entryIdParam;
   const [threadId, setThreadId] = useState<string | null>(null);
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [input, setInput] = useState("");
@@ -36,6 +38,10 @@ export default function Talk() {
   const [kept, setKept] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const scroller = useRef<ScrollView>(null);
+  // Guards a "Talk it through" entry against being introduced twice in one
+  // mount; the marker check below (against the loaded thread history) is
+  // what protects it across app restarts and re-focuses.
+  const primed = useRef<Set<string>>(new Set());
 
   useFocusEffect(
     useCallback(() => {
@@ -45,19 +51,42 @@ export default function Talk() {
         const id = await getThreadId();
         if (!live) return;
         setThreadId(id);
+        let history: AgentMessage[] = [];
         if (id) {
           try {
-            const history = await fetchThreadHistory(session.access_token, id);
+            history = await fetchThreadHistory(session.access_token, id);
             if (live) setMessages(history);
           } catch (e) {
             if (live) setError(e instanceof Error ? e.message : "Could not load the conversation.");
+            return;
           }
+        }
+
+        if (!entryId || primed.current.has(entryId)) return;
+        const marker = `entry_id=${entryId}`;
+        if (history.some((m) => m.type === "human" && m.content.includes(marker))) {
+          primed.current.add(entryId);
+          return;
+        }
+        primed.current.add(entryId);
+        try {
+          const entry = await fetchEntry(entryId);
+          if (!entry || !live) return;
+          setSending(true);
+          const threadIdForSend = id ?? (await ensureThread(session.access_token));
+          if (live) setThreadId(threadIdForSend);
+          const result = await sendMessage(session.access_token, threadIdForSend, entryToMessage(entry));
+          if (live) setMessages(result);
+        } catch (e) {
+          if (live) setError(e instanceof Error ? e.message : "Could not start that conversation.");
+        } finally {
+          if (live) setSending(false);
         }
       })();
       return () => {
         live = false;
       };
-    }, [session]),
+    }, [session, entryId]),
   );
 
   async function send() {
@@ -79,10 +108,14 @@ export default function Talk() {
   }
 
   async function keep(index: number) {
-    const entries = await fetchJournalEntries();
-    const latest = entries[0];
-    if (!latest) return;
-    await setAffirmationSaved(latest.id, true);
+    // A conversation that finished an existing entry (see entryId above)
+    // named it in the tool call; only a from-scratch conversation, which
+    // inserted a fresh row, has to fall back to "the one just created".
+    const call = messages[index]?.tool_calls?.find((c) => c.name === "log_emotion_entry");
+    const explicitId = typeof call?.args?.entry_id === "string" ? call.args.entry_id.trim() : "";
+    const id = explicitId || (await fetchJournalEntries())[0]?.id;
+    if (!id) return;
+    await setAffirmationSaved(id, true);
     setKept((prev) => new Set(prev).add(index));
   }
 

@@ -1,6 +1,8 @@
 import { supabase } from "./supabase";
 import { patternTone, type PatternTone } from "./patterns";
-import { quadrantFor, type QuadrantId } from "./emotions";
+import { activityLabel, describePoint, quadrantFor, type QuadrantId } from "./emotions";
+import { listWords } from "./format";
+import { CONTEXT_PREFIX } from "./agent";
 
 export interface JournalEntry {
   id: string;
@@ -61,6 +63,72 @@ export async function setAffirmationSaved(
     .update({ affirmation_saved: saved })
     .eq("id", id);
   if (error) throw error;
+}
+
+export interface CheckInInput {
+  userEmail: string;
+  /** Already lower-cased and joined, e.g. "anxious and overwhelmed". */
+  emotion: string;
+  intensity: number;
+  note: string;
+  activities: string[];
+  point: { x: number; y: number };
+}
+
+/**
+ * Writes the check-in the moment the word-picker flow finishes — this is
+ * the entry that shows on Today and in the Journal, before anyone has
+ * talked it through. RLS lets a signed-in client insert its own row, so
+ * this needs no agent round trip; `technique_used` and `reflection` start
+ * empty and `affirmation` stays null until (and unless) a conversation
+ * about it finishes and fills them in.
+ */
+export async function createCheckIn(input: CheckInInput): Promise<JournalEntry> {
+  const { data, error } = await supabase
+    .from("emotion_journal_entries")
+    .insert({
+      user_id: input.userEmail,
+      emotion: input.emotion,
+      intensity: input.intensity,
+      trigger: input.note,
+      technique_used: "",
+      reflection: "",
+      activities: input.activities,
+      point_x: input.point.x,
+      point_y: input.point.y,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as JournalEntry;
+}
+
+/** One entry by id, or null if it doesn't exist (or isn't this user's). */
+export async function fetchEntry(id: string): Promise<JournalEntry | null> {
+  const { data, error } = await supabase
+    .from("emotion_journal_entries")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data as JournalEntry | null;
+}
+
+/**
+ * The message that opens a "Talk it through" conversation about an entry
+ * already logged through the word-picker. Carries the entry's id behind
+ * `CONTEXT_PREFIX` so the client hides it from the chat while the agent
+ * still reads it — see instructions.md's "Opening from a check-in".
+ */
+export function entryToMessage(entry: JournalEntry): string {
+  const parts: string[] = [];
+  const feeling = entry.emotion.trim() || describePoint(pointOf(entry));
+  parts.push(`I logged a check-in: feeling ${feeling}.`);
+  const labels = (entry.activities ?? []).map(activityLabel);
+  if (labels.length) parts.push(`It's tied up with ${listWords(labels)}.`);
+  if (entry.trigger.trim()) parts.push(entry.trigger.trim());
+  parts.push("Can we talk it through?");
+  return `${CONTEXT_PREFIX}entry_id=${entry.id}\n${parts.join(" ")}`;
 }
 
 /** Every pattern slug on an entry, of either kind. */

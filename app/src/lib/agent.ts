@@ -7,12 +7,20 @@ export interface AgentMessage {
 }
 
 /**
+ * Marks a message this app sends to tell the agent which journal entry a
+ * conversation is about (see `entryToMessage` in `lib/journal.ts`), without
+ * it appearing in the chat. The agent still reads the full text — only this
+ * client's rendering hides it, via `isVisible` below.
+ */
+export const CONTEXT_PREFIX = "[[be-context]] ";
+
+/**
  * Whether a message from the run belongs on screen. Tool calls and their
  * results are part of how the agent works, not part of the conversation, and
  * an assistant turn that only made a tool call has no text to show.
  */
 export function isVisible(m: AgentMessage): boolean {
-  if (m.type === "human") return true;
+  if (m.type === "human") return !m.content.startsWith(CONTEXT_PREFIX);
   if (m.type === "ai") return m.content.trim().length > 0;
   return false;
 }

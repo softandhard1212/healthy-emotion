@@ -87,6 +87,7 @@ def log_emotion_entry(
     automatic_thought: str = "",
     reframe: str = "",
     people: str = "",
+    entry_id: str = "",
     *,
     runtime: ToolRuntime,
 ) -> str:
@@ -103,6 +104,7 @@ def log_emotion_entry(
         automatic_thought: The specific automatic thought identified, in the user's own words as far as possible. Leave blank if the conversation didn't surface one (e.g. a grounding-only exchange).
         reframe: The reframed version of that thought, if one emerged. Leave blank if there wasn't a clean reframe.
         people: Comma-separated names of who the feeling or the thought was about, exactly as the user names them ("Mom", "Alex", "Dr. Reyes", "my manager"). Use "Self" when it was about the user themselves — that is common and worth recording. Reuse the spelling from earlier entries if you have seen the person before. Empty string if no one came up.
+        entry_id: The id from a `[[be-context]]` message opening this conversation, if one appeared — see instructions.md. Updates that existing entry in place instead of creating a second one for the same check-in. Leave blank for a conversation that did not start from one.
     """
     user_id = _caller_id(runtime)
     if user_id is None:
@@ -135,8 +137,7 @@ def log_emotion_entry(
             "back to. Write one in their first-person voice, then retry."
         )
 
-    row = {
-        "user_id": user_id,
+    fields = {
         "emotion": emotion,
         "intensity": intensity,
         "trigger": trigger,
@@ -147,16 +148,41 @@ def log_emotion_entry(
         "thinking_patterns": patterns,
         "affirmation": affirmation.strip(),
         "people": [n.strip() for n in people.split(",") if n.strip()],
-        "created_at": datetime.now(timezone.utc).isoformat(),
     }
-    resp = httpx.post(
-        _rest_url(),
-        headers=_headers(prefer="return=minimal"),
-        json=row,
-        timeout=10.0,
-    )
-    if resp.is_error:
-        return f"Failed to save the journal entry ({resp.status_code}): {resp.text}"
+
+    if entry_id.strip():
+        # The app already inserted a lightweight row when the check-in was
+        # logged through the word-picker (mood, activities, the precise
+        # circumplex point). This finishes that same row rather than adding
+        # a second entry for one check-in — point_x/point_y and activities
+        # are left untouched, since the picker is a truer reading of those
+        # than anything said in conversation.
+        resp = httpx.patch(
+            _rest_url(),
+            headers=_headers(prefer="return=representation"),
+            params={"id": f"eq.{entry_id.strip()}", "user_id": f"eq.{user_id}"},
+            json=fields,
+            timeout=10.0,
+        )
+        if resp.is_error:
+            return f"Failed to save the journal entry ({resp.status_code}): {resp.text}"
+        if not resp.json():
+            return (
+                "Not saved — no entry with that id for this user. Call again "
+                "with entry_id cleared to log it as a new entry instead."
+            )
+    else:
+        fields["user_id"] = user_id
+        fields["created_at"] = datetime.now(timezone.utc).isoformat()
+        resp = httpx.post(
+            _rest_url(),
+            headers=_headers(prefer="return=minimal"),
+            json=fields,
+            timeout=10.0,
+        )
+        if resp.is_error:
+            return f"Failed to save the journal entry ({resp.status_code}): {resp.text}"
+
     if patterns:
         return f"Entry saved, tagged: {', '.join(_label(p) for p in patterns)}."
     return "Entry saved."

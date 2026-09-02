@@ -92,7 +92,7 @@ export default function Journal() {
                 </Text>
               )}
               {onDay.map((e) => (
-                <EmotionCard key={e.id} entry={e} onPress={() => router.push(`/journal/${e.id}`)} />
+                <EmotionCard key={e.id} entry={e} onPress={() => router.push(`/journal/${e.id}`)} onTalk={() => router.push({ pathname: "/talk", params: { entryId: e.id } })} />
               ))}
             </>
           )}

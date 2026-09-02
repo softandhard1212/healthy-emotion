@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { MessageCircle } from "lucide-react-native";
 import { Text } from "../theme/Text";
 import { quadrantColors, quadrantForPoint, tokens } from "../theme";
 import { activityLabel } from "../lib/emotions";
@@ -10,6 +11,18 @@ export interface EmotionCardProps {
   entry: JournalEntry;
   expanded?: boolean;
   onPress?: () => void;
+  /** Shown as "Talk it through" while the entry has no affirmation yet — see `talkedThrough` below. */
+  onTalk?: () => void;
+}
+
+/**
+ * Whether a conversation has finished this entry. `affirmation` is the last
+ * thing a conversation writes, so its absence is what distinguishes a bare
+ * check-in (logged straight from the word-picker, nothing said about it
+ * yet) from one that's been talked through.
+ */
+export function talkedThrough(entry: JournalEntry): boolean {
+  return Boolean(entry.affirmation);
 }
 
 /** "14:32" — the time alone; the date is carried by the list's grouping. */
@@ -27,11 +40,12 @@ function timeOf(iso: string): string {
  * that clears 4.5:1 across the whole ramp, and `scripts/check-contrast.mjs`
  * holds that line as the tokens change.
  */
-export function EmotionCard({ entry, expanded = false, onPress }: EmotionCardProps) {
+export function EmotionCard({ entry, expanded = false, onPress, onTalk }: EmotionCardProps) {
   const quadrant = quadrantForPoint(entry.point_x ?? 0, entry.point_y ?? 0);
   const { ink, gradient } = quadrantColors(quadrant);
   const contexts = entry.activities ?? [];
   const patterns = entry.thinking_patterns ?? [];
+  const showTalk = onTalk && !talkedThrough(entry);
 
   return (
     <Pressable onPress={onPress} accessibilityRole={onPress ? "button" : undefined}>
@@ -60,6 +74,15 @@ export function EmotionCard({ entry, expanded = false, onPress }: EmotionCardPro
               </View>
             ))}
           </View>
+        )}
+
+        {showTalk && (
+          <Pressable onPress={onTalk} accessibilityRole="button" style={({ pressed }) => [styles.talkChip, pressed && { opacity: 0.85 }]}>
+            <MessageCircle size={14} color={ink} />
+            <Text variant="ui.label-default" color={ink}>
+              Talk it through
+            </Text>
+          </Pressable>
         )}
 
         {expanded && (
@@ -132,6 +155,16 @@ const styles = StyleSheet.create({
   collapsed: { minHeight: 134, justifyContent: "space-between" },
   header: { flexDirection: "row", alignItems: "baseline", justifyContent: "space-between" },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: tokens.spacing["6"] },
+  talkChip: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: tokens.spacing["6"],
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    borderRadius: tokens.radius.full,
+    paddingVertical: tokens.spacing["8"],
+    paddingHorizontal: tokens.spacing["12"],
+  },
   chip: {
     backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: tokens.radius.full,
