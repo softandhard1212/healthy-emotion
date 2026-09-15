@@ -1,0 +1,21 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="683" height="844" viewBox="0 0 683 844" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="light source">
+<path id="light" d="M683 0H0V844H683V0Z" fill="url(#paint0_radial_0_5)"/>
+<ellipse id="diffused conversation light" cx="337" cy="443" rx="195" ry="253" fill="url(#paint1_radial_0_5)"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_5" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(321.36 422) scale(361.64 446.887)">
+<stop stop-color="#FFFBEA"/>
+<stop offset="0.129808" stop-color="#FFF2C9" stop-opacity="0.92"/>
+<stop offset="0.432692" stop-color="#E9CF9B" stop-opacity="0.34"/>
+<stop offset="0.769231" stop-color="#E0C28B" stop-opacity="0.1"/>
+<stop offset="1" stop-color="#E0C28B" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="paint1_radial_0_5" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(337 443) scale(195 253)">
+<stop stop-color="#F2DAAD" stop-opacity="0.34"/>
+<stop offset="0.28" stop-color="#EEE2C7" stop-opacity="0.22"/>
+<stop offset="0.62" stop-color="#DDE0F2" stop-opacity="0.09"/>
+<stop offset="1" stop-color="#DDE0F2" stop-opacity="0"/>
+</radialGradient>
+</defs>
+</svg>

@@ -1,0 +1,34 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="343.2" height="742.7" viewBox="0 0 343.2 742.7" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="illustration - editable glass motif" clip-path="url(#clip0_0_34)">
+<path id="Vector" d="M173.561 607.298C246.671 607.298 305.938 511.264 305.938 392.8C305.938 274.336 246.671 178.302 173.561 178.302C100.451 178.302 41.184 274.336 41.184 392.8C41.184 511.264 100.451 607.298 173.561 607.298Z" fill="url(#paint0_radial_0_34)"/>
+<g id="Vector_2">
+<path d="M33.44 742.7V257.93C33.44 171.961 87.3322 117.037 171.6 117.037C255.868 117.037 309.76 171.961 309.76 257.93V742.7" fill="url(#paint1_linear_0_34)"/>
+<path d="M33.44 742.7V257.93C33.44 171.961 87.3322 117.037 171.6 117.037C255.868 117.037 309.76 171.961 309.76 257.93V742.7" stroke="#DBEEFF" stroke-opacity="0.68" stroke-width="1.012"/>
+</g>
+<g id="Vector_3">
+<path d="M73.92 742.7V287.598C73.92 217.676 111.038 169.835 171.6 169.835C232.162 169.835 269.28 217.676 269.28 287.598V742.7" fill="#78D3B3" fill-opacity="0.22"/>
+<path d="M73.92 742.7V287.598C73.92 217.676 111.038 169.835 171.6 169.835C232.162 169.835 269.28 217.676 269.28 287.598V742.7" stroke="#F3FFF7" stroke-opacity="0.72" stroke-width="1.012"/>
+</g>
+<g id="Vector_4">
+<path d="M112.64 742.7V316.164C112.64 259.292 136.224 224.394 171.6 224.394C206.976 224.394 230.56 259.292 230.56 316.164V742.7" fill="#FFE286" fill-opacity="0.27"/>
+<path d="M112.64 742.7V316.164C112.64 259.292 136.224 224.394 171.6 224.394C206.976 224.394 230.56 259.292 230.56 316.164V742.7" stroke="#FFF7D7" stroke-opacity="0.82" stroke-width="1.012"/>
+</g>
+<path id="Vector_5" d="M0 587.189C57.8537 540.267 113.746 593.892 171.6 561.717C235.337 525.521 289.269 563.058 343.2 525.521V742.7H0V587.189Z" fill="#5F68C7" fill-opacity="0.25"/>
+<path id="Vector_6" d="M0 639.473C61.776 601.936 115.707 647.516 174.542 609.979C226.512 577.805 293.191 626.067 343.2 592.551V742.7H0V639.473Z" fill="#9CE0BE" fill-opacity="0.22"/>
+<path id="Vector_7" d="M0 694.438C59.8149 652.879 122.571 702.482 179.445 662.263C236.318 626.067 292.21 678.351 343.2 643.495V742.7H0V694.438Z" fill="#FFD75B" fill-opacity="0.22"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_34" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(173.561 414.25) scale(127.082 205.918)">
+<stop stop-color="#FFE16C" stop-opacity="0.95"/>
+<stop offset="0.48" stop-color="#FFB13D" stop-opacity="0.58"/>
+<stop offset="1" stop-color="#FFB13D" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="paint1_linear_0_34" x1="33.44" y1="117.037" x2="33.44" y2="742.7" gradientUnits="userSpaceOnUse">
+<stop stop-color="#92B6FF" stop-opacity="0.48"/>
+<stop offset="1" stop-color="#92B6FF" stop-opacity="0.12"/>
+</linearGradient>
+<clipPath id="clip0_0_34">
+<rect width="343.2" height="742.7" fill="white"/>
+</clipPath>
+</defs>
+</svg>
