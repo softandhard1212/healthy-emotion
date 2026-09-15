@@ -1,0 +1,20 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="171.6" height="371.4" viewBox="0 0 171.6 371.4" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="illustration - editable glass motif">
+<path id="Vector" d="M85.7969 324.749C119.089 324.749 146.077 280.519 146.077 225.958C146.077 171.397 119.089 127.167 85.7969 127.167C52.5052 127.167 25.5169 171.397 25.5169 225.958C25.5169 280.519 52.5052 324.749 85.7969 324.749Z" fill="url(#paint0_radial_0_12)"/>
+<path id="Vector_2" d="M85.8896 61.1696C122.429 65.2326 142.398 118.052 138.574 198.151C136.45 267.222 113.506 331.07 85.4648 345C51.8998 328.168 30.6561 268.383 33.2053 196.99C35.3297 119.793 52.7495 68.1347 85.8896 61.1696Z" fill="url(#paint1_linear_0_12)" stroke="#F3EFFF" stroke-opacity="0.521569" stroke-width="0.572"/>
+<path id="Vector_3" d="M81.9287 82.7108C115.161 86.7771 127.516 129.764 124.534 198.892C121.977 259.306 104.935 302.874 82.7808 316.816C58.07 299.97 47.4188 258.725 49.5491 200.054C52.1054 132.669 59.3482 90.8435 81.9287 82.7108Z" fill="#E9D9FF" fill-opacity="0.2" stroke="#FFE0C9" stroke-opacity="0.6" stroke-width="0.572"/>
+<path id="Vector_4" d="M86.9336 110.009C108.208 113.491 115.866 143.095 114.164 199.399C112.462 246.416 102.676 275.439 86.0826 286.468C68.6379 272.537 60.5537 242.933 62.2557 199.399C63.9576 151.221 69.9143 116.974 86.9336 110.009Z" fill="white" fill-opacity="0.141176" stroke="white" stroke-opacity="0.721569" stroke-width="0.528"/>
+<path id="Vector_5" d="M42.2479 281.671C62.6537 262.606 108.142 263.762 130.248 283.404" stroke="#FAD8C2" stroke-opacity="0.580392" stroke-width="0.616"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_12" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(85.7969 225.958) scale(60.28 98.7906)">
+<stop stop-color="#FFB258" stop-opacity="0.898039"/>
+<stop offset="0.55" stop-color="#FE8667" stop-opacity="0.380392"/>
+<stop offset="1" stop-color="#FE8667" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="paint1_linear_0_12" x1="32.9987" y1="61.1696" x2="219.102" y2="130.699" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF9C78" stop-opacity="0.560784"/>
+<stop offset="1" stop-color="#D8C7FF" stop-opacity="0.141176"/>
+</linearGradient>
+</defs>
+</svg>

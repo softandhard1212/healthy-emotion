@@ -154,3 +154,18 @@ non-reserved keys — `OPENCODE_GO_API_KEY`, `SUPABASE_URL`,
 `.env` or configured as LangSmith workspace secrets — a value exported in
 your shell is not read. Set `LANGSMITH_WORKSPACE_ID` or pass
 `--workspace-id` if your LangSmith API key requires a workspace selection.
+
+## Sign-in email template
+
+The app signs people in with a six-digit code rather than a magic link: a
+link opens the system browser, and the session lands in a URL a native app
+never sees.
+
+Supabase's default Magic Link template sends only the link, so add the
+code to it — Authentication > Email Templates > Magic Link:
+
+```
+Your code is {{ .Token }}
+```
+
+Without it the app will ask for a code the email does not contain.

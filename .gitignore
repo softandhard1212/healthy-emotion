@@ -1,1 +1,9 @@
 .DS_Store
+
+node_modules/
+.expo/
+*.tsbuildinfo
+.env*.local
+dist/
+.expo-shared/
+.env

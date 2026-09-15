@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Be",
+    "slug": "be",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "be",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.be.mobile"
+    },
+    "android": {
+      "package": "app.be.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFF7EF"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFF7EF",
+          "resizeMode": "contain"
+        }
+      ],
+      "expo-status-bar"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
