@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { ArrowUp, Star } from "lucide-react-native";
@@ -62,6 +62,8 @@ async function sendResilient(
   }
 }
 export default function Talk() {
+  const { height } = useWindowDimensions();
+  const compact = height < 700;
   const { session } = useAuth();
   const { entryId: entryIdParam } = useLocalSearchParams<{ entryId?: string }>();
   const entryId = Array.isArray(entryIdParam) ? entryIdParam[0] : entryIdParam;
@@ -227,9 +229,7 @@ export default function Talk() {
     >
       <Image source={visible.length === 0 ? talkLightSource : talkActiveLight} resizeMode="stretch" style={styles.lightSource} />
       <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
-        <View style={styles.menuPosition}>
-          <AppMenu active="talk" />
-        </View>
+        <AppMenu active="talk" />
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.safe} keyboardVerticalOffset={72}>
           <ScrollView
             ref={scroller}
@@ -238,8 +238,8 @@ export default function Talk() {
             keyboardShouldPersistTaps="handled"
           >
             {visible.length === 0 && !sending ? (
-              <View style={styles.opening}>
-                <View style={styles.greeting}>
+              <View style={[styles.opening, compact && styles.openingCompact]}>
+                <View style={[styles.greeting, compact && styles.greetingCompact]}>
                   <Text style={styles.greetingTitle}>
                     Hi {displayName},{"\n"}how are you doing?
                   </Text>
@@ -358,12 +358,13 @@ export default function Talk() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   lightSource: { ...StyleSheet.absoluteFill, width: "100%", height: "100%" },
-  menuPosition: { position: "absolute", left: 24, top: 0, zIndex: 2 },
   thread: { paddingBottom: tokens.spacing["12"], flexGrow: 1 },
   threadActive: { paddingTop: 78 },
   turn: { gap: tokens.spacing["10"], marginBottom: 42 },
-  opening: { flex: 1, minHeight: 520, paddingHorizontal: tokens.spacing["24"], paddingTop: 44 },
+  opening: { flexGrow: 1, paddingHorizontal: tokens.spacing["24"], paddingTop: 44 },
+  openingCompact: { paddingTop: 32 },
   greeting: { marginTop: tokens.spacing["64"], alignItems: "center", gap: tokens.spacing["8"] },
+  greetingCompact: { marginTop: tokens.spacing["40"] },
   greetingTitle: { fontFamily: "Lora_700Bold", fontSize: 26, lineHeight: 33, color: tokens.color.semantic.text.primary, textAlign: "center" },
   center: { textAlign: "center" },
   suggestions: { marginTop: "auto", paddingBottom: tokens.spacing["16"], alignItems: "flex-start", gap: tokens.spacing["8"] },

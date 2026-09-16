@@ -8,16 +8,18 @@ import { Text } from "../../../theme/Text";
 import { tokens } from "../../../theme";
 import { BELIEF_SECTIONS, type BeliefCardData } from "../../../lib/beliefs";
 
-function BeliefCard({ belief, width }: { belief: BeliefCardData; width: number }) {
+function BeliefCard({ belief, width, scale }: { belief: BeliefCardData; width: number; scale: number }) {
   const router = useRouter();
   const wide = belief.cardWidth === "wide";
-  const assetWidth = belief.artwork === "full" ? width : wide ? (width - 16) / 2 : width + 9;
+  const assetWidth = belief.artwork === "full" ? width : wide ? (width - 16 * scale) / 2 : width + 9 * scale;
+  const cardHeight = belief.cardHeight * scale;
+  const labelHeight = Math.max(wide ? 60 : 56, (wide ? 72 : 66) * scale);
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={belief.title} onPress={() => router.push(`/beliefs/${belief.id}` as Href)} style={({ pressed }) => pressed && styles.pressed}>
-      <LinearGradient colors={[...belief.colors]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={[styles.card, { width, height: belief.cardHeight }]}>
-        <Image source={belief.image} resizeMode="stretch" style={[styles.artwork, { width: assetWidth, height: belief.imageHeight, top: belief.imageTop, left: belief.artwork === "full" || wide ? 0 : -4 }]} />
-        <BlurView intensity={24} tint="light" style={[styles.labelGlass, wide ? styles.labelWide : styles.labelSmall]}>
+      <LinearGradient colors={[...belief.colors]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={[styles.card, { width, height: cardHeight }]}>
+        <Image source={belief.image} resizeMode="stretch" style={[styles.artwork, { width: assetWidth, height: belief.imageHeight * scale, top: belief.imageTop * scale, left: belief.artwork === "full" || wide ? 0 : -4 * scale }]} />
+        <BlurView intensity={24} tint="light" style={[styles.labelGlass, wide ? styles.labelWide : styles.labelSmall, { height: labelHeight }]}>
           <Text style={[styles.meta, !wide && styles.metaSmall]}>{belief.meta}</Text>
           <Text style={[styles.title, !wide && styles.titleSmall]} numberOfLines={2}>{belief.title}</Text>
           {belief.cue ? <Text style={styles.cue}>{belief.cue}</Text> : null}
@@ -29,19 +31,21 @@ function BeliefCard({ belief, width }: { belief: BeliefCardData; width: number }
 
 export default function Beliefs() {
   const { width } = useWindowDimensions();
-  const contentWidth = Math.min(342, width - 48);
+  const horizontalInset = Math.max(16, Math.min(24, width * 0.06));
+  const contentWidth = Math.min(420, width - horizontalInset * 2);
   const smallWidth = (contentWidth - 16) / 2;
+  const scale = contentWidth / 342;
 
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={["top"]} style={styles.safe}>
-        <View style={styles.menuPosition}><AppMenu active="beliefs" /></View>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <AppMenu active="beliefs" />
+        <ScrollView contentContainerStyle={[styles.content, { paddingHorizontal: horizontalInset }]} showsVerticalScrollIndicator={false}>
           {BELIEF_SECTIONS.map((section) => (
             <View key={section.title} style={styles.section}>
               <Text style={styles.sectionLabel}>{section.title}</Text>
               <View style={[styles.grid, { width: contentWidth }]}>
-                {section.cards.map((belief) => <BeliefCard key={belief.id} belief={belief} width={belief.cardWidth === "wide" ? contentWidth : smallWidth} />)}
+                {section.cards.map((belief) => <BeliefCard key={belief.id} belief={belief} scale={scale} width={belief.cardWidth === "wide" ? contentWidth : smallWidth} />)}
               </View>
             </View>
           ))}
@@ -54,7 +58,6 @@ export default function Beliefs() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: tokens.color.semantic.bg.primary },
   safe: { flex: 1 },
-  menuPosition: { position: "absolute", left: 24, top: 0, zIndex: 2 },
   content: { alignItems: "center", gap: tokens.spacing["32"], paddingTop: 56, paddingHorizontal: tokens.spacing["24"], paddingBottom: tokens.spacing["40"] },
   section: { gap: tokens.spacing["16"] },
   sectionLabel: { fontFamily: "Nunito_800ExtraBold", fontSize: 10, lineHeight: 14, letterSpacing: 1.2, color: tokens.color.semantic.text.secondary },

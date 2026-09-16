@@ -1,7 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { AppMenu } from "../../../components/AppMenu";
 import { beliefById } from "../../../lib/beliefs";
 import { tokens } from "../../../theme";
@@ -9,13 +10,21 @@ import { tokens } from "../../../theme";
 export default function BeliefDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const belief = beliefById(id);
-  if (!belief) return <View style={styles.fallback}><AppMenu active="beliefs" /></View>;
+  if (!belief) {
+    return (
+      <SafeAreaView edges={["top"]} style={styles.fallback}>
+        <AppMenu active="beliefs" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <LinearGradient colors={[...belief.colors]} style={styles.screen}>
       <StatusBar style="dark" />
       <Image source={belief.image} resizeMode="contain" style={styles.artwork} />
-      <View style={styles.menuPosition}><AppMenu active="beliefs" /></View>
+      <SafeAreaView edges={["top"]} pointerEvents="box-none" style={styles.menuSafe}>
+        <AppMenu active="beliefs" />
+      </SafeAreaView>
     </LinearGradient>
   );
 }
@@ -23,6 +32,6 @@ export default function BeliefDetail() {
 const styles = StyleSheet.create({
   screen: { flex: 1, overflow: "hidden" },
   artwork: { ...StyleSheet.absoluteFill, width: "100%", height: "100%" },
-  menuPosition: { position: "absolute", left: 24, top: 44 },
-  fallback: { flex: 1, paddingTop: 44, paddingLeft: 24, backgroundColor: tokens.color.semantic.bg.primary },
+  menuSafe: { ...StyleSheet.absoluteFill },
+  fallback: { flex: 1, backgroundColor: tokens.color.semantic.bg.primary },
 });

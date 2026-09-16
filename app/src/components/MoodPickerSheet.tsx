@@ -1,5 +1,5 @@
 import { BlurView } from "expo-blur";
-import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Text } from "../theme/Text";
 import { tokens } from "../theme";
 import {
@@ -127,6 +127,8 @@ export function MoodPickerSheet({
   onCancel,
   onDone,
 }: MoodPickerSheetProps) {
+  const { height } = useWindowDimensions();
+  const sheetHeight = Math.min(694, Math.max(360, Math.round(height * 0.82)));
   const selected = selectedWords
     .map((word) => EMOTIONS.find((emotion) => emotion.word === word))
     .filter((emotion): emotion is Emotion => Boolean(emotion));
@@ -147,7 +149,7 @@ export function MoodPickerSheet({
           onPress={onCancel}
           style={styles.backdrop}
         />
-        <BlurView accessibilityViewIsModal intensity={45} tint="light" style={styles.sheet}>
+        <BlurView accessibilityViewIsModal intensity={45} tint="light" style={[styles.sheet, { height: sheetHeight }]}>
           <View style={styles.handle} />
           <View style={styles.header}>
             <Text variant="body.large-bold">I am feeling</Text>
@@ -160,6 +162,7 @@ export function MoodPickerSheet({
             style={styles.scroll}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
             {selected.length > 0 ? (
               <View style={styles.selectedSection}>
@@ -209,9 +212,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(199, 204, 225, 0.28)",
   },
   sheet: {
-    height: "82.2%",
-    maxHeight: 694,
-    minHeight: 560,
     overflow: "hidden",
     borderTopLeftRadius: tokens.radius.xl,
     borderTopRightRadius: tokens.radius.xl,

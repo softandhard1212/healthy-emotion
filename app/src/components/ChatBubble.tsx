@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import { Text } from "../theme/Text";
 
 export interface ChatBubbleProps {
@@ -11,10 +11,11 @@ export interface ChatBubbleProps {
  * the warm field; only the user's messages sit inside a glass bubble.
  */
 export function ChatBubble({ role, text }: ChatBubbleProps) {
+  const { width } = useWindowDimensions();
   const user = role === "user";
   return (
     <View style={[styles.row, user ? styles.rowUser : styles.rowAi]}>
-      <View style={[user ? styles.user : styles.ai]}>
+      <View style={[user ? styles.user : styles.ai, !user && { maxWidth: Math.min(326, width - 60) }]}>
         <Text variant="body.default" color="#352840" style={user ? styles.userText : styles.aiText}>
           {text}
         </Text>
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 16,
   },
-  ai: { maxWidth: 326 },
+  ai: {},
   userText: { fontFamily: "Lora_400Regular", fontSize: 15, lineHeight: 21 },
   aiText: { fontFamily: "Lora_400Regular", fontSize: 17, lineHeight: 24.65 },
 });

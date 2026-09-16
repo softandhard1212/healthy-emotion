@@ -66,7 +66,7 @@ export default function Journal() {
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={["top"]} style={styles.safe}>
-        <View style={styles.menuPosition}><AppMenu active="journal" /></View>
+        <AppMenu active="journal" />
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <MonthCalendar
             month={month}
@@ -93,7 +93,6 @@ export default function Journal() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#F1EDE7" },
   safe: { flex: 1 },
-  menuPosition: { position: "absolute", left: 24, top: 0, zIndex: 2 },
   content: { paddingTop: 54, paddingHorizontal: tokens.spacing["24"], paddingBottom: tokens.spacing["40"] },
   cards: { gap: 48, marginTop: 34 },
   card: {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BlurView } from "expo-blur";
 import { useRouter, type Href } from "expo-router";
-import { Alert, Image, Modal, Pressable, StyleSheet, View } from "react-native";
+import { Alert, Image, Modal, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "../theme/Text";
 import { tokens } from "../theme";
@@ -19,19 +19,25 @@ const settingsIcon = require("../../assets/menu-settings.png");
 
 export function AppMenu({ active }: { active: MainSection }) {
   const router = useRouter();
+  const { width, height } = useWindowDimensions();
   const [open, setOpen] = useState(false);
+  const compact = width < 360 || height < 700;
+  const sidebarWidth = Math.min(260, Math.max(208, Math.round(width * 0.6)));
+  const itemWidth = sidebarWidth - tokens.spacing["40"];
 
   return (
     <>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Open navigation"
-        hitSlop={8}
-        onPress={() => setOpen(true)}
-        style={({ pressed }) => [styles.trigger, pressed && styles.pressed]}
-      >
-        <Text variant="body.small-bold">•••</Text>
-      </Pressable>
+      <View pointerEvents="box-none" style={styles.anchor}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Open navigation"
+          hitSlop={8}
+          onPress={() => setOpen(true)}
+          style={({ pressed }) => [styles.trigger, pressed && styles.pressed]}
+        >
+          <Text variant="body.small-bold">•••</Text>
+        </Pressable>
+      </View>
 
       <Modal visible={open} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setOpen(false)}>
         <View style={styles.modalRoot}>
@@ -41,10 +47,10 @@ export function AppMenu({ active }: { active: MainSection }) {
             onPress={() => setOpen(false)}
             style={styles.backdrop}
           />
-          <View style={styles.sidebar}>
+          <View style={[styles.sidebar, { width: sidebarWidth }]}>
             <BlurView intensity={45} tint="light" pointerEvents="none" style={styles.blurLayer} />
-            <SafeAreaView edges={["top", "bottom"]} style={styles.sidebarSafe}>
-              <View style={styles.navigation}>
+            <SafeAreaView edges={["top", "bottom"]} style={[styles.sidebarSafe, compact && styles.sidebarSafeCompact]}>
+              <View style={[styles.navigation, compact && styles.navigationCompact]}>
                 {ITEMS.map((item) => {
                   const selected = active === item.id;
                   return (
@@ -58,12 +64,14 @@ export function AppMenu({ active }: { active: MainSection }) {
                       }}
                       style={({ pressed }) => [
                         styles.navigationItem,
+                        { width: itemWidth },
+                        compact && styles.navigationItemCompact,
                         selected && styles.navigationItemSelected,
                         pressed && styles.pressed,
                       ]}
                     >
                       <View style={styles.labelGroup}>
-                        <Text style={styles.navigationLabel}>{item.label}</Text>
+                        <Text style={[styles.navigationLabel, compact && styles.navigationLabelCompact]}>{item.label}</Text>
                         <Text style={styles.navigationDescription}>{item.description}</Text>
                       </View>
                       {selected ? <Image source={currentMarker} resizeMode="contain" style={styles.currentMarker} /> : null}
@@ -76,7 +84,7 @@ export function AppMenu({ active }: { active: MainSection }) {
                 accessibilityRole="button"
                 accessibilityLabel="Settings"
                 onPress={() => Alert.alert("Settings", "This screen is waiting for your next Figma design.")}
-                style={({ pressed }) => [styles.settings, pressed && styles.pressed]}
+                style={({ pressed }) => [styles.settings, { width: itemWidth }, compact && styles.settingsCompact, pressed && styles.pressed]}
               >
                 <Image source={settingsIcon} resizeMode="contain" style={styles.settingsIcon} />
                 <Text style={styles.settingsLabel}>Settings</Text>
@@ -90,6 +98,15 @@ export function AppMenu({ active }: { active: MainSection }) {
 }
 
 const styles = StyleSheet.create({
+  // AppMenu is mounted directly in each route's top SafeAreaView. Keeping this
+  // anchor here makes the trigger land at the same visual height on every page.
+  anchor: {
+    position: "absolute",
+    top: 0,
+    left: tokens.spacing["24"],
+    zIndex: 20,
+    elevation: 20,
+  },
   trigger: {
     width: 44,
     height: 44,
@@ -107,7 +124,6 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: 220,
     overflow: "hidden",
     borderTopRightRadius: 28,
     borderBottomRightRadius: 28,
@@ -129,9 +145,13 @@ const styles = StyleSheet.create({
     paddingTop: tokens.spacing["28"],
     paddingBottom: tokens.spacing["28"],
   },
+  sidebarSafeCompact: {
+    paddingTop: tokens.spacing["16"],
+    paddingBottom: tokens.spacing["16"],
+  },
   navigation: { gap: tokens.spacing["12"] },
+  navigationCompact: { gap: tokens.spacing["8"] },
   navigationItem: {
-    width: 180,
     height: 77,
     flexDirection: "row",
     alignItems: "center",
@@ -142,6 +162,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingHorizontal: 17,
   },
+  navigationItemCompact: { height: 68, paddingHorizontal: 14 },
   navigationItemSelected: { borderColor: "rgba(255, 255, 255, 0.84)" },
   labelGroup: { gap: tokens.spacing["2"] },
   navigationLabel: {
@@ -150,6 +171,7 @@ const styles = StyleSheet.create({
     lineHeight: 32,
     color: tokens.color.semantic.text.primary,
   },
+  navigationLabelCompact: { fontSize: 23, lineHeight: 29 },
   navigationDescription: {
     fontFamily: "Nunito_400Regular",
     fontSize: 11,
@@ -158,7 +180,6 @@ const styles = StyleSheet.create({
   },
   currentMarker: { width: 7, height: 4 },
   settings: {
-    width: 180,
     minHeight: 56,
     flexDirection: "row",
     alignItems: "center",
@@ -169,6 +190,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 14,
   },
+  settingsCompact: { minHeight: 50, paddingHorizontal: 15, paddingVertical: 10 },
   settingsIcon: { width: 18, height: 18 },
   settingsLabel: {
     fontFamily: "Lora_700Bold",
